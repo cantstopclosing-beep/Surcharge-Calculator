@@ -1,0 +1,28 @@
+name: Update Fuel Surcharge Rate
+
+on:
+  schedule:
+    # Runs at 10pm UTC on the 28th and 1st of each month
+    # (covers AEDT/AEST transition for AU publishing dates)
+    - cron: '0 22 28 * *'
+    - cron: '0 22 1 * *'
+  workflow_dispatch: # Manual trigger via GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  update-fuel-rate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch and update fuel rate
+        run: python3 update-fuel-rate.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fuel-rate.json
+          git diff --cached --quiet || (git commit -m "Auto-update fuel surcharge rate" && git push)
