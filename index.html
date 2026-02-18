@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domestic Shipment Surcharge Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --purple-900: #2d0a4e;
+  --purple-700: #4b1d8e;
+  --purple-600: #6b21a8;
+  --purple-100: #f3e8ff;
+  --purple-50: #faf5ff;
+  --orange-500: #ff6200;
+  --orange-600: #e55800;
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-500: #6b7280;
+  --gray-300: #d1d5db;
+  --gray-200: #e5e7eb;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
+  --green-600: #059669;
+  --green-50: #ecfdf5;
+  --red-600: #dc2626;
+  --red-50: #fef2f2;
+  --amber-600: #d97706;
+  --amber-50: #fffbeb;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.header {
+  background: var(--purple-900);
+  color: white;
+  padding: 0;
+}
+
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 20px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.header-logo {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.header-divider {
+  width: 1.5px;
+  height: 28px;
+  background: rgba(255,255,255,0.25);
+}
+
+.header-sub {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.01em;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+
+.header p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+}
+
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title .num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--purple-700);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-row-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-row { grid-template-columns: 1fr; }
+  .form-row-3 { grid-template-columns: 1fr; }
+  .form-row-5 { grid-template-columns: 1fr 1fr; }
+  .form-row-5 > *:last-child { grid-column: 1 / -1; }
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 5px;
+}
+
+.field input, .field select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--gray-900);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--purple-600);
+  box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+}
+
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%236b7280' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.field .unit {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-top: 3px;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--gray-50);
+  flex: 1;
+  min-width: 200px;
+}
+
+.checkbox-item:hover { border-color: var(--gray-300); }
+
+.checkbox-item.active {
+  border-color: var(--purple-600);
+  background: var(--purple-50);
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--purple-700);
+}
+
+.checkbox-item .cb-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.checkbox-item .cb-sub {
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.btn-calc {
+  width: 100%;
+  padding: 14px;
+  background: var(--orange-500);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.01em;
+}
+
+.btn-calc:hover { background: var(--orange-600); }
+.btn-calc:active { transform: scale(0.995); }
+
+.suburb-picker {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--amber-50);
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+}
+
+.suburb-picker p {
+  font-size: 12px;
+  color: var(--amber-600);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.suburb-picker select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #fbbf24;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  background: white;
+}
+
+/* Results */
+.results-card {
+  background: white;
+  border-radius: 12px;
+  border: 1.5px solid var(--purple-600);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(75, 29, 142, 0.08);
+}
+
+.results-header {
+  background: var(--purple-900);
+  padding: 20px 28px;
+  color: white;
+}
+
+.results-header h2 {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.results-header .meta {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 2px;
+}
+
+.results-body {
+  padding: 0 28px 28px;
+}
+
+.results-section {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.results-section:last-child { border-bottom: none; }
+
+.results-section h3 {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  margin-bottom: 10px;
+}
+
+.surcharge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.surcharge-row + .surcharge-row {
+  border-top: 1px solid var(--gray-100);
+}
+
+.surcharge-info {
+  flex: 1;
+}
+
+.surcharge-code {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--purple-600);
+  background: var(--purple-50);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.surcharge-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.surcharge-detail {
+  font-size: 11px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+
+.surcharge-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+  min-width: 100px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.surcharge-flag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.flag-amber {
+  background: var(--amber-50);
+  color: var(--amber-600);
+  border: 1px solid #fcd34d;
+}
+
+.flag-green {
+  background: var(--green-50);
+  color: var(--green-600);
+  border: 1px solid #a7f3d0;
+}
+
+.total-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  background: var(--gray-900);
+  color: white;
+}
+
+.total-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.total-label span {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.6);
+  margin-top: 1px;
+}
+
+.total-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--orange-500);
+}
+
+.weight-summary {
+  display: flex;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 4px;
+}
+
+.weight-item {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.weight-item strong {
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.no-surcharges {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--green-600);
+}
+
+.no-surcharges .icon { font-size: 36px; margin-bottom: 8px; }
+.no-surcharges h3 { font-size: 16px; font-weight: 700; }
+.no-surcharges p { font-size: 13px; color: var(--gray-500); margin-top: 4px; }
+
+.note-box {
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+
+.note-info {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  color: #1d4ed8;
+}
+
+.note-warn {
+  background: var(--amber-50);
+  border: 1px solid #fcd34d;
+  color: #92400e;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.line-items {
+  padding: 0;
+}
+
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.line-item:last-child { border-bottom: none; }
+
+.line-item-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.line-item-label .li-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gray-500);
+  margin-top: 1px;
+}
+
+.line-item-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.line-item-amount.muted {
+  color: var(--gray-500);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.line-item.freight {
+  padding: 14px 0;
+}
+
+.line-item.freight .line-item-label {
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.line-item.subtotal {
+  border-top: 2px solid var(--gray-200);
+  border-bottom: none;
+  padding: 14px 0 4px;
+}
+
+.line-item.subtotal .line-item-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+}
+
+.line-item.subtotal .line-item-amount {
+  font-size: 13px;
+  color: var(--gray-700);
+}
+
+.fuel-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--purple-600);
+  background: var(--purple-50);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  letter-spacing: 0.02em;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.item-row:hover { border-color: var(--gray-300); }
+
+.item-row .item-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--purple-50);
+  color: var(--purple-700);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.item-row .field { margin-bottom: 0; }
+.item-row .field label { font-size: 11px; margin-bottom: 3px; }
+.item-row .field input { padding: 7px 10px; font-size: 13px; }
+
+.item-row-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px;
+  margin-bottom: 4px;
+}
+
+.item-row-header span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .item-row {
+    grid-template-columns: 40px 1fr 1fr;
+  }
+  .item-row-header {
+    grid-template-columns: 40px 1fr 1fr;
+  }
+  .item-row .field:nth-child(4),
+  .item-row .field:nth-child(5) {
+    grid-column: span 1;
+  }
+}
+
+.fuel-banner {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.fuel-live {
+  background: var(--green-50);
+  border: 1px solid #a7f3d0;
+  color: var(--green-600);
+}
+
+.fuel-cached {
+  background: var(--amber-50);
+  border: 1px solid #fcd34d;
+  color: var(--amber-600);
+}
+
+.fuel-fallback {
+  background: var(--gray-100);
+  border: 1px solid var(--gray-300);
+  color: var(--gray-500);
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">📦</div>
+      <div class="header-sub">Independent Surcharge Estimator</div>
+    </div>
+    <h1>Domestic Shipment Surcharge Calculator</h1>
+    <p>An independent tool to estimate surcharges on TNT Australia domestic shipments. Not affiliated with, endorsed by, or operated by TNT, FedEx, or any carrier. All amounts in AUD, GST exclusive.</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Fuel surcharge status -->
+  <div id="fuelStatus" class="fuel-banner fuel-fallback">⚪ Fuel surcharge: <strong>23.2%</strong> (1 Feb 2026 – 28 Feb 2026) — <em>Loading live rate...</em></div>
+
+  <!-- Service Selection -->
+  <div class="card">
+    <div class="card-title"><span class="num">1</span> Service &amp; Shipment Details</div>
+    <div class="form-row">
+      <div class="field">
+        <label>Service Type</label>
+        <select id="service">
+          <option value="">Select a service...</option>
+          <optgroup label="Domestic Express">
+            <option value="XPDD">Road Express (XPDD)</option>
+            <option value="COMP">Technology Express (COMP)</option>
+            <option value="FASH">Fashion Express (FASH)</option>
+          </optgroup>
+          <optgroup label="Premium Express">
+            <option value="AMXP_9">9:00 Express (AMXP)</option>
+            <option value="AMXP_10">10:00 Express (AMXP)</option>
+            <option value="AMXP_12">12:00 Express (AMXP)</option>
+            <option value="ONFC">Overnight Express (ONFC)</option>
+          </optgroup>
+          <optgroup label="Time Critical">
+            <option value="SDAY">Next Flight / Sameday (SDAY)</option>
+            <option value="FSFS">Failsafe Services (FSFS/FSFC)</option>
+            <option value="DNET">Dedicated Networks (DNET)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Freight Charge (AUD)</label>
+        <input type="number" id="freightCharge" placeholder="e.g. 150.00" min="0" step="0.01">
+        <div class="unit">From your myTNT2 quote — needed for fuel &amp; % surcharges</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Postcodes -->
+  <div class="card">
+    <div class="card-title"><span class="num">2</span> Collection &amp; Delivery Postcodes</div>
+    <div class="form-row">
+      <div class="field">
+        <label>Collection Postcode</label>
+        <input type="text" id="pickupPC" placeholder="e.g. 3000" maxlength="4" inputmode="numeric">
+        <div id="pickupSuburbWrap" class="suburb-picker hidden">
+          <p>⚠ This postcode has suburbs in different remote zones. Please select:</p>
+          <select id="pickupSuburb"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Delivery Postcode</label>
+        <input type="text" id="deliveryPC" placeholder="e.g. 4000" maxlength="4" inputmode="numeric">
+        <div id="deliverySuburbWrap" class="suburb-picker hidden">
+          <p>⚠ This postcode has suburbs in different remote zones. Please select:</p>
+          <select id="deliverySuburb"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items: Dimensions & Weight -->
+  <div class="card">
+    <div class="card-title"><span class="num">3</span> Items — Dimensions &amp; Weight</div>
+    <div class="form-row" style="margin-bottom: 20px;">
+      <div class="field">
+        <label>Number of Items</label>
+        <input type="number" id="itemCount" value="1" min="1" max="50" step="1">
+        <div class="unit">Items in this consignment</div>
+      </div>
+      <div style="display: flex; align-items: flex-end; padding-bottom: 22px;">
+        <span style="font-size: 12px; color: var(--gray-500); line-height: 1.4;">
+          Enter dimensions and weight for each item.<br>
+          Per-item surcharges (MHP, Oversize) are assessed individually.
+        </span>
+      </div>
+    </div>
+    <div id="itemRows">
+      <!-- Dynamically generated item rows -->
+    </div>
+  </div>
+
+  <!-- Options -->
+  <div class="card">
+    <div class="card-title"><span class="num">4</span> Additional Options</div>
+    <div class="checkbox-row">
+      <label class="checkbox-item" id="resPickupWrap">
+        <input type="checkbox" id="resPickup">
+        <div>
+          <div class="cb-label">Residential Pickup</div>
+          <div class="cb-sub">Collection from a home address</div>
+        </div>
+      </label>
+      <label class="checkbox-item" id="resDeliveryWrap">
+        <input type="checkbox" id="resDelivery">
+        <div>
+          <div class="cb-label">Residential Delivery</div>
+          <div class="cb-sub">Delivery to a home address</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Calculate -->
+  <button class="btn-calc" onclick="calculate()">Calculate Surcharges</button>
+
+  <!-- Results -->
+  <div id="results" class="hidden" style="margin-top: 24px;"></div>
+
+</div>
+
+<div class="footer">
+  <strong>Disclaimer:</strong> This is an independent tool and is not affiliated with, endorsed by, or operated by TNT, FedEx, or any related entity.
+  Surcharge rates sourced from publicly available information effective 25 September 2025. Rates are subject to change — always confirm with your carrier.<br>
+  This tool provides estimates only. Actual surcharges are determined and applied by the carrier at time of invoicing.
+</div>
+
+<script>
+// ============================================================
+// REMOTE AREA ZONE DATA (extracted from TNT PDF 25/09/2025)
+// Format: { "postcode": zone_number } for single-zone
+//         { "postcode": { "s": { "SUBURB": zone } } } for mixed
+// ============================================================
+const REMOTE_ZONES = {"0600":1,"0601":2,"0602":3,"0603":3,"0604":1,"0605":1,"0606":1,"0607":3,"0608":2,"0609":1,"0610":1,"0611":1,"0612":1,"0613":3,"0614":1,"0615":1,"0616":1,"0617":3,"0618":1,"0619":1,"0822":{"s":{"ACACIA HILLS":1,"ANGURUGU":1,"BEES CREEK":1,"BORDER STORE":1,"BURRUNDIE":1,"COX PENINSULA":1,"CROKER ISLAND":1,"DELISSAVILLE":1,"EAST ARNHEM":1,"FLY CREEK":1,"GOULBURN ISLAND":1,"GUNN POINT":1,"HAYES CREEK":1,"LAKE BENNETT":1,"LAMBELLS LAGOON":1,"LIVINGSTONE":1,"MARANUNGA":1,"MARGARET RIVER":1,"MCMINNS LAGOON":1,"MIDDLE POINT":1,"MOUNT BUNDEY":1,"PIRLANGIMPI":1,"ROBIN FALLS":1,"SNAKE BAY":1,"SOUTHPORT":1,"TIPPERARY":1,"UMBAKUMBA":1,"WAGAIT BEACH":1,"WEDDELL":1,"ANNIE RIVER":3,"CLARAVALE":3,"DALY RIVER":3,"GALIWINKU":3,"GOULBOURN ISLAND":3,"GUNBALANYA":3,"KAKADU":3,"MANINGRIDA":3,"MILINGIMBI":3,"MILYAKBURRA":3,"MINJILANG":3,"NEMARLUK":3,"NGANMARRIYANGA":3,"NGUIU":3,"NUMBULWAR":3,"NUMBURINDI":3,"OENPELLI":3,"PALUMPA":3,"PEPPIMENARTI":3,"PULARUMPI":3,"RAMINGINING":3,"THAMARRURR":3,"TORTILLA FLATS":3,"WADEYE":3,"WARRUWI":3,"WEST ARNHEM":3,"WOOLANING":3,"BATHURST ISLAND":2,"COBOURG":2,"DOUGLAS-DALY":2,"NAUIYU":2,"POINT STEPHENS":2}},"0837":1,"0838":1,"0840":1,"0841":1,"0845":1,"0846":1,"0847":1,"0852":{"s":{"ARNOLD":3,"BAINES":3,"BIRDUM":3,"BUCHANAN":3,"BULMAN WEEMOL":3,"CRESWELL":3,"DAGURAGU":3,"DALY WATERS":3,"FLYING FOX":3,"GULUNG MARDRULK":3,"GURINDJI":3,"KALKARINDJI":3,"KALKARINGI":3,"LAJAMANU":3,"LIMMEN":3,"MCARTHUR":3,"MINIYERI":3,"NGUKURR":3,"NUMBULWAR":3,"NUTWOOD DOWNS":3,"PELLEW ISLANDS":3,"PIGEON HOLE":3,"ROBINSON RIVER":3,"TANAMI EAST":3,"TIMBER CREEK":3,"TOP SPRINGS":3,"VICTORIA RIVER DOWNS":3,"WARUMUNGU":3,"WAVE HILL":3,"WILTON":3,"YARRALIN":3,"BARUNGA":1,"BESWICK":1,"ELSEY":1,"JILKMINGGAN":1,"LARRIMAH":1,"MARANBOY":1,"MATARANKA":1,"STURT PLATEAU":1,"VICTORIA RIVER":1,"BRADSHAW":2,"DELAMERE":2,"DUNMARRA":2,"EDITH RIVER":2,"ELSEY STATION":2,"GREGORY":2}},"0854":3,"0862":{"s":{"AVON DOWNS":3,"CALVERT":3,"CRESSWELL DOWNS":3,"ELLIOTT":3,"MUCKATY STATION":3,"NEWCASTLE WATERS":3,"NICHOLSON":3,"THREE WAYS":3,"WARREGO":3,"WOLLOGORANG STATION":3,"WYCLIFFE WELL":3,"PAMAYU":2,"TABLELANDS":2,"RENNER SPRINGS":1}},"0872":{"s":{"ALI CURUNG":3,"ALI-CURUNG":3,"AMATA":3,"AMPILATWATJA":3,"ANATYE":3,"BARROW CREEK":3,"CANTEEN CREEK":3,"CHILLA WELL":3,"COSTELLO":3,"DAVENPORT":3,"DE ROSE HILL":3,"ERNABELLA":3,"FINKE":3,"FREGON":3,"GIBSON DESERT NORTH":3,"GIBSON DESERT SOUTH":3,"HAASTS BLUFF":3,"IMANPA":3,"INDULKANA":3,"ININTI STORE":3,"IWANTJA":3,"JAY CREEK":3,"KALKA":3,"KALTJITI":3,"KALTUKATJARA":3,"KANPI":3,"KINGS CREEK STATION":3,"KINTORE":3,"KIWIRRKURRA":3,"KULGERA":3,"KUNPARRKA":3,"LAKE MACKAY":3,"LAMBINA":3,"MACDONNELL RANGE":3,"MEREENIE":3,"MIMILI":3,"MOUNT LIEBIG":3,"MULGA BORE":3,"MURPUTJA HOMELANDS":3,"MUTITJULU":3,"NAPPERBY STATION":3,"NGAANYATJARRA-GILES":3,"NYAPARI":3,"NYIRRIPI":3,"PAPUNYA":3,"PATJARR":3,"PETERMANN":3,"PIPALYATJARA":3,"PUKATJA":3,"SANDOVER":3,"SIMPSON":3,"TANAMI":3,"TARA":3,"TELEGRAPH STATION":3,"THANGKENHARENGE":3,"TIEYON":3,"TJIRRKARLI":3,"TJUKURLA":3,"UMPANGARA":3,"UMUWA":3,"URAPUNTJA":3,"WANARN":3,"WARRABRI":3,"WATARRU":3,"WATINUMA":3,"WILLOWRA":3,"WILORA":3,"WINGELLINA":3,"WUTUNUGURRA":3,"YUELAMU":3,"YUENDUMU":3,"YULARA":3,"YUNYARINYI":3,"ANMATJERE":2,"ANTEWENEGERRDE":2,"GHAN":2,"LARAMBA":2,"AREYONGA":1,"ATITJERE":1,"AYERS RANGE SOUTH":1,"ENGAWALA":1,"ERLDUNDA":1,"HART":1,"HART RANGE":1,"HERMANNSBURG":1,"MOUNT ZEIL":1,"MURPUTJA":1,"NAMATJIRA":1,"SANTA TERESA":1,"TI TREE":1,"TITJIKALA":1,"WALLACE ROCKHOLE":1}},"0880":{"s":{"GAPUWIYAK":3,"GOVE":1,"GUNYANGARA":1,"NHULUNBUY":1,"YIRRKALA":1}},"0885":1,"0886":3,"0900":1,"2250":1,"2259":1,"2265":1,"2311":1,"2312":1,"2320":1,"2321":1,"2323":1,"2324":1,"2325":1,"2328":1,"2329":1,"2330":1,"2333":1,"2335":1,"2336":1,"2337":1,"2338":1,"2339":1,"2340":1,"2341":1,"2342":1,"2343":1,"2344":1,"2345":1,"2346":1,"2347":1,"2350":1,"2352":1,"2353":1,"2354":1,"2356":1,"2357":{"s":{"BOMERA":1,"BUGALDIE":1,"DANDRY":1,"GOWANG":1,"PURLEWAUGH":1,"ROCKY GLEN":1,"SIDING SPRING":1,"TANNABAR":1,"ULAMAMBRI":1,"WARKTON":1,"YEARINAN":1,"BOX RIDGE":2,"WATTLE SPRINGS":2}},"2358":1,"2359":1,"2360":1,"2361":1,"2365":1,"2369":1,"2370":1,"2371":1,"2372":1,"2379":1,"2380":1,"2381":1,"2382":1,"2385":1,"2386":1,"2387":1,"2388":1,"2390":1,"2394":1,"2395":1,"2396":{"s":{"BARADINE":2,"BARWON":1,"CUMBIL":1,"CUMBIL CORNER":1,"GOORIANAWA":1,"KENEBRI":1,"WOOLEYBAH":1}},"2397":1,"2399":1,"2400":1,"2401":1,"2402":1,"2403":1,"2404":1,"2405":1,"2406":1,"2408":1,"2409":1,"2410":1,"2411":1,"2415":1,"2418":1,"2420":{"s":{"BANDON GROVE":1,"BENDOLBA":1,"BROOKFIELD":1,"CAMBRA":1,"DUNGOG":1,"FLAT TOPS":1,"FOSTERTON":1,"HANLEYS CREEK":1,"HILLDALE":1,"MAIN CREEK":1,"MARSHDALE":1,"MARTINS CREEK":1,"MUNNI":1,"SALISBURY":1,"STROUD HILL":1,"SUGARLOAF":1,"TABBIL CREEK":1,"UNDERBANK":1,"WALLARINGA":1,"WALLAROBBA":1,"WIRRAGULLA":1,"CHICHESTER":2}},"2421":1,"2422":1,"2423":1,"2424":1,"2425":1,"2426":1,"2428":1,"2429":1,"2430":1,"2439":1,"2440":1,"2441":1,"2443":1,"2446":1,"2447":1,"2449":1,"2450":1,"2453":1,"2454":1,"2455":1,"2456":1,"2460":1,"2461":1,"2462":1,"2463":1,"2464":1,"2465":1,"2466":1,"2469":1,"2470":1,"2471":1,"2472":1,"2473":1,"2474":1,"2475":1,"2476":1,"2477":1,"2478":1,"2479":1,"2480":1,"2481":1,"2482":1,"2483":1,"2484":1,"2486":1,"2487":1,"2488":1,"2490":1,"2535":1,"2536":1,"2537":1,"2538":1,"2539":1,"2545":1,"2546":1,"2549":1,"2550":1,"2551":1,"2575":1,"2576":1,"2577":1,"2578":1,"2579":1,"2580":1,"2581":1,"2582":1,"2583":1,"2584":1,"2585":1,"2586":{"s":{"BOOROWA":2,"FROGMORE":1,"GOBA CREEK":1,"GODFREYS CREEK":1,"HOVELLS CREEK":1,"KENYU":1,"MURRINGO":1,"PHILS CREEK":1,"REIDS FLAT":1,"RYE PARK":1,"TAYLORS FLAT":1}},"2587":1,"2588":1,"2589":1,"2590":1,"2594":1,"2603":1,"2611":1,"2620":1,"2621":1,"2622":1,"2623":1,"2624":1,"2626":1,"2627":{"s":{"CRACKENBACK":1,"EAST JINDABYNE":1,"GROSSES PLAIN":1,"GUTHEGA":1,"HILLTOP":1,"INGEBIRAH":1,"INGEBYRA":1,"KALKITE":1,"MOONBAH":1,"PENDERLEA":1,"SAWPIT CREEK":1,"SNOWVIEW":1,"WASTE POINT":1,"WEST LYNNE":1,"PILOT WILDERNESS":2}},"2628":{"s":{"AVONSIDE":1,"BELOKA":1,"COOLAMATONG":1,"COOTRALANTRA":1,"DALGETY":1,"EASTBOURNE":1,"EUCUMBENE":1,"MURLINGBUNG":1,"NUMBLA VALE":1,"PAUPONG":1,"ROCKY PLAIN":1,"ROCKY PLAINS":1,"SNOWY PLAINS":1,"BYADBO WILDERNESS":2}},"2629":{"s":{"ADAMINABY":1,"ANGLERS REACH":1,"BOLARO":1,"BROKEN DAM":1,"GOOANDRA":1,"KIANDRA":1,"LONG PLAIN":1,"NUNGAR":1,"OLD ADAMINABY":1,"PROVIDENCE PORTAL":1,"TANTANGARA":1,"TOLBAR":1,"YAOUK":1,"CABRAMURRA":2}},"2630":1,"2631":1,"2632":1,"2633":{"s":{"BEACONSFIELD":1,"CORROWIDGIN":1,"CORROWONG":1,"KARACHI":1,"KIRKENONG":1,"MERAMBEGO":1,"RODNEY":1,"SNODGRASS":1,"TINGIRINGI":1,"TOMBONG":1,"DELEGATE":2}},"2640":1,"2642":{"s":{"BIDGEEMIA":2,"BROCKLESBY":1,"BURRUMBUTTOCK":1,"GEEHI":1,"GEROGERY":1,"GLENELLEN":1,"GREG GREG":1,"INDI":1,"JAGUMBA":1,"JAGUNGAL WILDERNESS":1,"JINGELLIC":1,"KHANCOBAN":1,"MURRAY GORGE":1,"RAND":1,"TOOMA":1,"WALBUNDRIE":1,"WELAREGANG":1}},"2644":1,"2645":1,"2646":{"s":{"BALLDALE":1,"COLLENDINA":1,"COREEN":1,"GOOMBARGANA":1,"HOPEFIELD":1,"LOWESDALE":1,"NYORA":1,"OAKLANDS":1,"REDLANDS":1,"RENNIE":1,"RINGWOOD":1,"SANGER":1,"DAYSDALE":2,"SAVERNAKE":2}},"2648":{"s":{"ANA BRANCH":1,"ANABRANCH NORTH":1,"BUNNERUNGEE":1,"BURTUNDY":1,"CAL LAL":1,"ELLERSLIE":1,"NEILPO":1,"PALINYEWAH":1,"PAN BAN":1,"PINE CAMP":1,"RUFUS":1,"MOORARA":2,"POONCARIE":2,"RUFUS RIVER":2,"SCOTIA":2,"VICTORIA COTTAGE":2}},"2649":1,"2650":1,"2652":{"s":{"BOORGA":2,"GALORE":1,"HUMULA":1,"KEAJURA":1,"MANGOPLAH":1,"MAXWELL":1,"MULULA":1,"MURRULEBALE":1,"OBERNE":1,"STACKPOOLE":1,"UMBANGO":1,"YOOLARAI":1}},"2653":1,"2655":1,"2656":1,"2658":1,"2659":1,"2660":1,"2663":1,"2665":{"s":{"ARDLETHAN":2,"BARELLAN":1,"BECKOM":1,"BECTRIC":1,"BINYA":1,"KAMARAH":1,"MIRROOL":1,"MOOMBOOLDOOL":1,"MOUNT CRYSTAL":1,"QUANDARY":1,"TARA":1,"WALLEROOBIE":1}},"2666":1,"2668":1,"2669":{"s":{"BYGALORIE":1,"ERIGOLIA":1,"EURATHA":1,"GUBBATA":1,"KIKOIRA":1,"N YALGOGRIN":1,"NARADHAN":1,"NORTH YALGOGRIN":1,"TALEEBAN":1,"TALLIMBA":1,"WEETHALLE":1,"WEJA":1,"YADDRA":1,"YALGOGRIN":1,"YALGOGRIN NORTH":1,"GIRRAL":2,"MELBERGEN":2}},"2671":1,"2672":1,"2675":1,"2680":{"s":{"BENEREMBAH":1,"NERICON":1,"WARRAWIDGEE":1,"WHITE TOP":1,"WIDGELLI":1,"WILLBRIGGIE":1,"THARBOGANG":2}},"2681":1,"2700":1,"2701":1,"2702":1,"2705":1,"2707":1,"2710":1,"2711":{"s":{"BOOLIGAL":1,"CLARE":1,"CORRONG":1,"GUM CREEK":1,"GUNBAR":1,"MAUDE":1,"ONE TREE":1,"KERI KERI":2,"OXLEY":2,"WAUGORAH":2,"YANGA":2}},"2712":1,"2713":2,"2714":1,"2715":{"s":{"ARUMPO":3,"BALRANALD":3,"HATFIELD":1,"MUNGO":1}},"2716":{"s":{"FOUR CORNERS":1,"JERILDERIE":1,"MABINS WELL":1,"MAIRJIMMY":1,"GALA VALE":2}},"2720":1,"2721":{"s":{"BLAND":1,"QUANDIALLA":3}},"2722":{"s":{"BACK STATION CREEK":1,"BALLS PLATFORM":1,"BIG BEN":1,"BONGALONG":1,"BONGONGALONG":1,"BONGONGOLONG":1,"BRUNGLE":1,"BRUNGLE CREEK":1,"BURRA":1,"DARBALARA":1,"EDWARDSTOWN":1,"FIVE MILE":1,"GUNDAGAI":1,"GUNDAGAI SOUTH":1,"JACKALASS":1,"JONES CREEK":1,"KIMOVALE":1,"NANGUS":1,"RENO":1,"ROSEMOUNT":1,"TARRABANDRA":1,"WAGRAGOBILLY":1,"WILLIE PLOMA":1,"MUTTAMA":2}},"2725":1,"2726":1,"2727":1,"2729":1,"2730":1,"2731":1,"2732":{"s":{"BARHAM":1,"GONN":1,"NOORONG":1,"TULLAKOOL":1,"BURRABOI":2,"COBRAMUNGA":2,"THULE":2}},"2733":1,"2734":1,"2735":1,"2736":1,"2737":1,"2738":1,"2775":1,"2787":{"s":{"APANIE":1,"BALFOUR":1,"BLACK SPRINGS":1,"CARLWOOD":1,"DUCKMALOI":1,"EDITH":1,"FISH RIVER DAM":1,"FOLEYS CREEK":1,"GINGKIN":1,"HAZELGROVE":1,"JAUNTER":1,"JERULA":1,"JOCELYN":1,"MELVILLE PARK":1,"MOUNT WERONG":1,"MOZART":1,"MT WERONG":1,"NORWAY":1,"PORTERS RETREAT":1,"SHOOTERS HILL":1,"SWEETBRIAR":1,"TARANA":1,"TITANIA":1,"YERRANDERIE":2}},"2790":1,"2791":1,"2792":1,"2793":1,"2794":1,"2795":1,"2797":1,"2798":1,"2799":1,"2800":1,"2803":1,"2804":1,"2805":1,"2806":1,"2807":1,"2808":1,"2809":1,"2810":{"s":{"BIMBI":2,"CARAGABAL":2,"PULLABOOKA":2,"PINEY RANGE":1,"PINNACLE":1,"WARRADERRY":1}},"2817":1,"2818":1,"2820":{"s":{"APSLEY":1,"ARTHURVILLE":1,"BAKERS SWAMP":1,"BLACK ROCK":1,"BLATHERY CREEK":1,"BODANGORA":1,"BUNGIEBOMAR":1,"BURRENDONG":1,"BURRENDONG DAM":1,"BUSHRANGERS CREEK":1,"COMOBELLA":1,"CURRA CREEK":1,"DRILL CREEK":1,"DRIPSTONE":1,"FARNHAM":1,"FINGER POST":1,"GOLLAN":1,"JAWBONE":1,"LAKE BURRENDONG":1,"LINCOLN":1,"LOWER MOOKEBAWA":1,"MARYVALE":1,"MEBUL":1,"MEDWAY":1,"MONTAUBAN":1,"MONTEFIORES":1,"MOUNT ARTHUR":1,"MT ARTHUR":1,"MUMBIL":1,"NANIMA":1,"NEUREA":1,"SAXA":1,"SPICERS CREEK":1,"STORE CREEK":1,"STUART TOWN":1,"SUNTOP":1,"WALMER":1,"WUULUMAN":1,"YARRAGAL":1,"MOOKERAWA":2}},"2821":1,"2823":1,"2824":1,"2825":1,"2827":1,"2828":1,"2829":1,"2830":1,"2831":{"s":{"ARMATREE":1,"BALLADORAN":1,"BRENDA":1,"BRINGLE":1,"BULLARGREEN":1,"BYROCK":1,"CARINDA":1,"COMPTON DOWNS":1,"COOLABAH":1,"KEIGHRANS TANK":1,"MONKEY BRIDGE":1,"MURIEL":1,"NARINGHI":1,"NUBINGERIE":1,"NYMAGEE":1,"PINE RIDGE":1,"PONTO":1,"QUAMBONE":1,"TERRABELLA":1,"TROWELL CREEK":1,"WESTELLA":1,"MACQUARIE MARSHES":2,"THE MARRA":3}},"2832":1,"2833":3,"2834":1,"2835":{"s":{"ARCHRIALL":1,"CABLE DOWNS":1,"CANBELEGO":1,"COBAR":1,"CUBBA":1,"GILGUNNIA":1,"LERIDA":1,"MOUNT DRYSDALE":1,"MT DRYSDALE":1,"PRIORY TANK":1,"SANDY CREEK":1,"TINDAREY":1,"BULLA":2,"IRYMPLE":2,"KERRIGUNDI":2,"KULWIN":2,"NOONA":2}},"2836":3,"2838":1,"2839":1,"2840":{"s":{"BARRINGUN":2,"ENNGONIA":2,"LOUTH":2,"TILPA":2,"URISINO":2,"WANAARING":2,"YANTABULLA":2,"YOUNGERINA BORE":2,"BOURKE":1,"DRY LAKE":1,"E TOORALE":1,"EAST TOORALE":1,"FORDS BRIDGE":1,"GUMBALIE":1,"GUNDERBOOKA":1,"HUNGERFORD":1,"JANINA":1,"NORTH BOURKE":1,"THOULCANNA":1}},"2842":{"s":{"MOLLYAN":2,"NEW MOLLYAN":2,"YARRAGRIN":1}},"2843":1,"2844":1,"2846":1,"2848":1,"2849":1,"2850":1,"2852":1,"2864":1,"2865":1,"2866":1,"2867":1,"2868":1,"2869":1,"2870":1,"2871":1,"2873":{"s":{"ALBERT":1,"LANSDALE":1,"MIAMLEY":1,"TOTTENHAM":2}},"2874":1,"2875":1,"2876":1,"2877":{"s":{"BOBADAH":2,"EREMERANG":2,"BOONA MOUNT":1,"DERRIWONG":1,"EUABALONG":1,"GILGUNNIA":1,"MT HOPE":1,"MULGUTHRIE":1,"KIACATOO":3,"MILBY":3,"MOUNT HOPE":3}},"2878":{"s":{"BEILPAJAH":1,"CONOBLE":1,"DARNICK":1,"DARNICK SIDING":1,"MANARA":1,"MANARA SIDING":1,"IVANHOE":3,"MOSSGIEL":2}},"2879":3,"2880":{"s":{"BROUGHAMS GATE":1,"EURIOWIE":1,"FOWLERS GAP":1,"KALEENTHA LOOP":1,"KINALUNG":1,"MOUNT GIPPS":1,"MUTAWINTJI":1,"SILVERTON":1,"STEPHENS CREEK":1,"LITTLE TOPAR":2,"PACKSADDLE":2,"MILPARINKA":3,"TIBOOBURRA":3}},"2890":1,"2898":3,"3024":1,"3221":1,"3232":1,"3233":1,"3234":1,"3235":1,"3236":1,"3237":1,"3238":1,"3239":1,"3240":1,"3241":1,"3243":1,"3249":1,"3256":1,"3260":1,"3269":1,"3271":1,"3272":1,"3286":1,"3290":1,"3292":1,"3293":1,"3294":1,"3301":1,"3302":1,"3303":1,"3304":1,"3305":1,"3309":1,"3310":1,"3311":1,"3312":1,"3314":1,"3315":1,"3317":1,"3318":1,"3319":1,"3321":1,"3323":1,"3324":1,"3325":1,"3330":1,"3331":1,"3334":1,"3342":1,"3351":1,"3352":1,"3360":1,"3361":1,"3373":1,"3375":1,"3378":1,"3379":1,"3381":1,"3384":1,"3385":1,"3387":1,"3388":1,"3392":1,"3395":1,"3396":1,"3401":1,"3407":1,"3412":1,"3413":1,"3414":1,"3415":1,"3417":1,"3418":1,"3419":1,"3420":1,"3422":1,"3423":1,"3424":1,"3458":1,"3462":1,"3463":1,"3468":1,"3469":1,"3472":1,"3475":{"s":{"ARCHDALE":1,"ARCHDALE JUNCTION":1,"BEALIBA":1,"BURKES FLAT":1,"COCHRANES CREEK":1,"LOGAN":1,"EMU":2}},"3477":1,"3478":1,"3480":1,"3482":1,"3483":1,"3485":1,"3487":1,"3488":1,"3489":1,"3490":1,"3491":1,"3494":1,"3496":1,"3501":1,"3506":1,"3507":1,"3509":1,"3512":1,"3515":1,"3516":1,"3517":1,"3518":1,"3520":1,"3525":1,"3527":1,"3529":1,"3530":1,"3531":1,"3533":1,"3537":1,"3540":1,"3542":1,"3544":1,"3546":1,"3549":1,"3551":1,"3558":1,"3559":1,"3564":1,"3566":1,"3567":1,"3568":1,"3570":1,"3571":1,"3572":1,"3573":1,"3575":1,"3576":1,"3579":1,"3580":1,"3581":1,"3585":1,"3586":1,"3588":1,"3589":1,"3590":1,"3591":1,"3594":1,"3595":1,"3596":1,"3597":1,"3599":1,"3612":1,"3616":1,"3621":1,"3622":1,"3623":1,"3629":1,"3631":1,"3635":1,"3636":1,"3637":1,"3638":1,"3639":1,"3641":1,"3644":1,"3646":1,"3658":1,"3665":1,"3666":1,"3669":1,"3670":1,"3673":1,"3675":1,"3677":1,"3678":1,"3682":1,"3683":1,"3685":1,"3688":1,"3691":1,"3695":1,"3699":{"s":{"BOGONG":2,"FALLS CREEK":3,"NELSE":1}},"3700":1,"3701":{"s":{"DARTMOUTH":3,"ESKDALE":1,"GRANYA":1,"MITTA MITTA":1,"OLD TALLANGATTA":1,"SHELLEY":1,"TALLANGATTA VALLEY":1}},"3704":1,"3705":1,"3707":{"s":{"BIGGARA":2,"BRINGENBRONG":2,"NARIEL VALLEY":2,"THOWGLA VALLEY":2,"TOM GROGGIN":2,"COLAC COLAC":1,"TOWONG":1,"TOWONG UPPER":1}},"3708":2,"3709":{"s":{"BURROWYE":1,"GUYS FOREST":1,"PINE MOUNTAIN":2}},"3711":1,"3722":1,"3723":{"s":{"ARCHERTON":2,"JAMIESON":2,"MERRIJIG":2,"MOUNT BULLER":2,"TOLMIE":2,"BARJARG":1,"BOOROLITE":1,"ENOCHS POINT":1,"GAFFNEYS CREEK":1,"HOWQUA":1,"HOWQUA HILLS":1,"KEVINGTON":1,"KNOCKWOOD":1,"MATLOCK":1,"SAWMILL SETTLEMENT":1,"WOODS POINT":1}},"3725":1,"3726":1,"3727":1,"3728":1,"3730":1,"3732":1,"3733":1,"3735":1,"3737":1,"3739":1,"3740":1,"3741":{"s":{"FREEBURGH":1,"GERMANTOWN":1,"HARRIETVILLE":1,"HOTHAM HEIGHTS":1,"SMOKO":1,"MOUNT HOTHAM":2}},"3744":1,"3746":1,"3747":1,"3749":1,"3764":1,"3777":1,"3779":1,"3797":1,"3799":1,"3816":1,"3818":1,"3821":1,"3822":1,"3823":1,"3824":1,"3825":1,"3831":1,"3832":1,"3833":1,"3835":1,"3838":1,"3844":1,"3847":1,"3850":1,"3851":1,"3858":1,"3859":1,"3860":1,"3862":{"s":{"BENGWORDEN NORTH":1,"BLACK SNAKE CREEK":1,"BUDGEE BUDGEE":1,"BULGOBACK":1,"CASTLEBURN":1,"COBBANNAH":1,"COWA":1,"CROOKED RIVER":1,"FREESTONE CREEK":1,"HAWKHURST":1,"HOLLANDS LANDING":1,"LEEBROOKE":1,"LLOWALONG":1,"MEERLIEU":1,"MIOWERA":1,"MOORNAPA":1,"MUNRO":1,"N BENGWORDEN":1,"NORTH BENGWORDEN":1,"PERRY BRIDGE":1,"PERRYS BRIDGE":1,"RIVERFORD":1,"STOCKDALE":1,"TALBOTVILLE":1,"WATERFORD":1,"WONGUNGARRA":1,"DARGO":2}},"3864":1,"3866":1,"3869":1,"3870":1,"3871":1,"3874":1,"3875":1,"3880":1,"3885":1,"3886":1,"3887":1,"3888":1,"3889":1,"3890":1,"3891":1,"3892":1,"3893":1,"3895":1,"3896":1,"3898":{"s":{"ANGLERS REST":1,"BINGO":1,"BINGO MUNJIE":1,"BINGO MUNJIE NORTH":1,"BUNDARA":1,"CASSILIS":1,"COBUNGRA":1,"GLEN VALLEY":1,"GLEN WILLS":1,"HINNOMUNJIE":1,"JIM & JACK CREEK":1,"JIM AND JACK CREEK":1,"LIVINGSTONE VALLEY":1,"N BINGO MUNJIE":1,"NORTH BINGO MUNJIE":1,"OMEO":1,"OMEO VALLEY":1,"RUNDELLS":1,"SHANNON VALE":1,"SHANNONVALE":1,"THE WALNUTS":1,"TONGIO WEST":1,"WEST TONGIO":1,"DINNER PLAIN":2}},"3900":{"s":{"BENAMBRA":2,"COBBERAS":2,"THE BROTHERS":1,"UPLANDS":1}},"3902":1,"3909":1,"3945":1,"3950":1,"3951":1,"3953":1,"3956":1,"3957":1,"3959":1,"3960":1,"3962":1,"3964":1,"3965":1,"3966":1,"3967":1,"3971":1,"3977":1,"3979":1,"3981":1,"3988":1,"3995":1,"4025":1,"4183":1,"4184":1,"4211":1,"4213":1,"4285":1,"4287":1,"4306":1,"4307":1,"4309":1,"4310":1,"4311":1,"4312":{"s":{"BRYDEN":2,"CABOONBAH":2,"COAL CREEK":2,"GLEN ESK":2,"MOOMBRA":2,"MOUNT BYRON":2,"MOUNT HALLEN":2,"MURRUMBA":2,"REDBANK CREEK":2,"SOMERSET DAM":2,"CROSSDALE":1,"ESKDALE":1,"ESK":3}},"4313":{"s":{"BIARRA":1,"BRAEMORE":1,"CRESSBROOK":1,"FULHAM":1,"GREGORS CREEK":1,"IVORY CREEK":1,"LOWER CRESSBROOK":1,"MOUNT BEPPO":1,"OTTABA":1,"SCRUB CREEK":1,"TOOGOOLAWAH":1,"YIMBUN":1,"COOEEIMBARDI":2}},"4314":{"s":{"AVOCA VALE":2,"MOUNT STANLEY":2,"NUKKU":2,"TEELAH":2,"BENARKIN":1,"BENARKIN NORTH":1,"BLACKBUTT":1,"BLACKBUTT NORTH":1,"BLACKBUTT SOUTH":1,"CHERRY CREEK":1,"COLINTON":1,"GILLA":1,"GOOGA CREEK":1,"HARLIN":1,"LINVILLE":1,"MOORE":1,"MOUNT BINGA":1,"TAROMEO":1}},"4340":1,"4341":1,"4342":1,"4343":1,"4344":1,"4345":1,"4346":1,"4347":1,"4352":1,"4353":1,"4355":1,"4356":1,"4357":{"s":{"BRINGALILY":1,"BULLI CREEK":1,"CANNING CREEK":1,"CAPTAINS MOUNTAIN":1,"CONDAMINE FARMS":1,"CYPRESS GARDENS":1,"DOMVILLE":1,"FOREST RIDGE":1,"GRAYS GATE":1,"KOOROONGARRA":1,"LAVELLE":1,"LEMONTREE":1,"MILLMERRAN DOWNS":1,"MILLMERRAN WOODS":1,"MOUNT EMLYN":1,"PUNCHS CREEK":1,"ROCKY CREEK":1,"THE PINES":1,"TURALLIN":1,"WATTLE RIDGE":1,"WESTERN CREEK":1,"WOONDUL":1,"MILLWOOD":3}},"4358":1,"4359":1,"4360":1,"4361":1,"4362":1,"4363":1,"4364":1,"4365":1,"4370":1,"4371":1,"4372":1,"4373":1,"4374":1,"4375":1,"4376":1,"4377":1,"4378":1,"4380":1,"4381":1,"4382":1,"4383":1,"4384":1,"4385":{"s":{"BEEBO":1,"BONSHAW":1,"GLENARBON":1,"MAIDENHEAD":1,"RIVERTON":1,"SILVER SPUR":1,"SMITHLEA":1,"TEXAS":1,"WATSONS CROSSING":1,"CAMP CREEK":2}},"4387":1,"4388":1,"4390":1,"4401":1,"4402":1,"4403":1,"4404":1,"4405":1,"4406":1,"4407":{"s":{"CATTLE CREEK":3,"CECIL PLAINS":1,"DUNMORE":1,"NANGWEE":1}},"4408":1,"4410":1,"4411":1,"4412":1,"4413":1,"4415":1,"4416":1,"4417":1,"4418":1,"4419":1,"4420":{"s":{"BROADMERE":1,"GHINGHINDA":1,"GWAMBEGWINE":1,"HORNET BANK":1,"TAROOM":1,"COORADA":3,"GLENHAUGHTON":3,"SPRING CREEK":2}},"4421":1,"4422":1,"4423":1,"4424":1,"4425":1,"4426":1,"4427":1,"4428":1,"4454":{"s":{"ARCADIA VALLEY":1,"BAFFLE WEST":1,"DURHAM DOWNS":1,"INJUNE":1,"MOUNT HOWE":1,"BEILBA":2,"HIGHLAND PLAINS":2,"HUTTON CREEK":2,"MOUNT HUTTON":2,"PONY HILLS":2,"SIMMIE":2,"UPPER DAWSON":2,"WESTGROVE":2}},"4455":1,"4461":1,"4462":1,"4465":2,"4467":2,"4468":2,"4470":1,"4471":2,"4472":2,"4474":2,"4475":2,"4477":{"s":{"AUGATHELLA":3,"CAROLINE CROSSING":2,"NIVE":2,"UPPER WARREGO":2}},"4478":{"s":{"BAYRICK":2,"CALDERVALE":2,"LANSDOWNE":2,"LUMEAH":2,"MACFARLANE":2,"MINNIE DOWNS":2,"SCRUBBY CREEK":2,"YANDARLO":2,"TAMBO":1,"WINDEYER":3}},"4479":2,"4480":3,"4481":3,"4482":3,"4485":1,"4486":{"s":{"DIRRANBANDI":1,"HEBEL":2}},"4487":1,"4488":2,"4489":2,"4490":{"s":{"BARRINGUN":3,"CUTTABURRA":3,"JOBS GATE":3,"NOORAMA":3,"TUEN":3,"WIDGEEGOARA":3,"YOWAH":3,"COONGOOLA":2,"CUNNAMULLA":2,"HUMEBURN":2,"LINDEN":2}},"4491":3,"4492":3,"4493":3,"4494":1,"4496":1,"4497":1,"4498":{"s":{"KIOMA":3,"TOOBEAH":1}},"4514":{"s":{"BELLTHORPE":1,"CEDARTON":1,"COMMISSIONERS FLAT":1,"MOUNT ARCHER":1,"NEURUM":1,"STANMORE":1,"STONEY CREEK":1,"STONY CREEK":1,"VILLENEUVE":1,"WOODFORD":1,"DELANEYS CREEK":2,"MOUNT DELANEY":2}},"4515":1,"4519":1,"4520":1,"4521":1,"4552":1,"4568":1,"4569":1,"4570":1,"4571":1,"4574":1,"4581":{"s":{"FRASER ISLAND":1,"INSKIP POINT":1,"ORCHID BEACH":2}},"4600":1,"4601":1,"4605":1,"4606":1,"4608":1,"4610":1,"4611":1,"4612":1,"4613":1,"4614":1,"4615":1,"4620":1,"4621":1,"4625":1,"4626":1,"4627":1,"4630":{"s":{"BANCROFT":3,"BUKALI":3,"CANIA":3,"COOMINGLAH":3,"COOMINGLAH FOREST":3,"DALGA":3,"HARRAMI":3,"KALPOWAR":3,"MONAL":3,"MOONFORD":3,"MUNGUNGO":3,"RAWBELLE":3,"CANNINDAH":1,"GLENLEIGH":1,"KAPALDO":1,"LANGLEY":1,"MONTO":1,"MULGILDIE":1,"SELENE":1,"SPLINTER CREEK":1,"TELLEBANG":1,"THREE MOON":1,"VENTNOR":1,"YARROL":1}},"4650":1,"4655":1,"4659":1,"4660":1,"4662":1,"4670":1,"4671":1,"4673":1,"4674":{"s":{"BAFFLE CREEK":1,"BERAJONDO":1,"DEEPWATER":1,"EULEILAH":1,"MOUNT MARIA":1,"OYSTER CREEK":1,"ROSEDALE":1,"RULES BEACH":1,"TAUNTON":2}},"4676":{"s":{"GINDORAN":2,"LOWMEAD":1}},"4677":{"s":{"AGNES WATER":1,"COLOSSEUM":1,"MIRIAM VALE":1,"SEVENTEEN SEVENTY":1,"EURIMBULA":2}},"4678":1,"4680":1,"4694":1,"4695":1,"4699":1,"4700":1,"4701":1,"4702":{"s":{"ALSACE":1,"ALTON DOWNS":1,"ANAKIE":1,"ARGOON":1,"BALCOMBA":1,"BANANA":1,"BARALABA":1,"BARNARD":1,"BINGEGANG":1,"BLACKDOWN":1,"BLUFF":1,"BOGANTUNGAN":1,"BOOLBURRA":1,"BOONDOOLA":1,"BOULDERCOMBE":1,"BUSHLEY":1,"CANAL CREEK":1,"CANOONA":1,"CAWARRAL":1,"COMET":1,"CONSUELO":1,"COOMOO":1,"COORUMBENE":1,"COOWONGA":1,"DALMA":1,"DINGO":1,"DIXALEA":1,"DUARINGA":1,"DULULU":1,"DUMPY CREEK":1,"ETNA CREEK":1,"GAINSFORD":1,"GEMFIELDS":1,"GINDIE":1,"GLENROY":1,"GOGANGO":1,"GOOMALLY":1,"GOOVIGEN":1,"GOOWARRA":1,"JAMBIN":1,"JARDINE":1,"JELLINBAH":1,"JERICHO":1,"JOSKELEIGH":1,"KALAPA":1,"KEPPEL SANDS":1,"KUNWARARA":1,"LOWESBY":1,"MANOORA":1,"MIDGEE":1,"MILMAN":1,"MIMOSA":1,"MOONMERA":1,"MORINISH":1,"MORINISH SOUTH":1,"MOUNT CHALMERS":1,"NINE MILE":1,"PHEASANT CREEK":1,"PLUM TREE":1,"RANNES":1,"RIDGELANDS":1,"ROLLESTON":1,"ROSSMOYA":1,"RUBYVALE":1,"SAPPHIRE":1,"SHOALWATER":1,"SMOKY CREEK":1,"SOUTH YAAMBA":1,"STANAGE":1,"STEWARTON":1,"THE CAVES":1,"THOMPSON POINT":1,"TUNGAMULL":1,"ULOGIE":1,"WALLAROO":1,"WESTWOOD":1,"WILLOWS":1,"WILLOWS GEMFIELDS":1,"WITHERSFIELD":1,"WOOLEIN":1,"WOORABINDA":1,"WOOROONA":1,"WOWAN":1,"WYCARBAH":1,"YALLEROI":1,"YARAKA":1,"GARNANT":3,"THE GEMFIELDS":3}},"4703":1,"4704":1,"4705":{"s":{"CLARKE CREEK":2,"LOTUS CREEK":2,"MACKENZIE RIVER":1,"MARLBOROUGH":1,"MOUNT GARDINER":1}},"4706":1,"4707":1,"4709":1,"4712":1,"4713":1,"4714":1,"4715":1,"4716":1,"4718":1,"4719":1,"4720":1,"4721":{"s":{"ARGYLL":1,"BELYANDO":1,"CLERMONT":1,"FRANKFIELD":1,"GEMINI MOUNTAINS":1,"KILCUMMIN":1,"PEAK VALE":1,"THERESA CREEK":1,"WINCHESTER":1,"WOLFANG":1,"ELGIN":3,"LAGLAN":3,"PASHA":3,"MISTAKE CREEK":2}},"4722":1,"4723":{"s":{"BELCONG":1,"CAPELLA":1,"CARBINE CREEK":1,"CHIRNSIDE":1,"COTHERSTONE":1,"CRINUM":1,"FORK LAGOONS":1,"HIBERNIA":1,"KHOSH BULDUK":1,"LILYVALE":1,"LOWESTOFF":1,"RETRO":1,"MOUNT MACARTHUR":2}},"4724":{"s":{"ALPHA":3,"BEAUFORT":1,"DRUMMONDSLOPE":1,"HOBARTVILLE":1,"PINE HILL":1,"PORT WINE":1,"SEDGEFORD":1,"SURBITON":1,"QUETTA":2}},"4725":1,"4726":{"s":{"ARAMAC":1,"PELICAN CREEK":1,"GALILEE":2}},"4727":1,"4728":3,"4730":{"s":{"BRIXTON":1,"CAMOOLA":1,"ERNESTINA":1,"LONGREACH":1,"MANEROO":1,"MORELLA":1,"VERGEMONT":1,"CHORREGON":2,"STONEHENGE":2,"TOCAL":2}},"4731":{"s":{"ISISFORD":2,"YARAKA":1}},"4732":2,"4733":2,"4735":{"s":{"DIAMANTINA LAKES":3,"MIDDLETON":3,"OPALTON":2,"WINTON":1}},"4736":3,"4737":1,"4738":1,"4739":2,"4740":1,"4741":{"s":{"BALL BAY":1,"BRAMPTON ISLAND":1,"BRIGHTLY":1,"COPPABELLA":1,"DAYDREAM ISLAND":1,"EPSOM":1,"ETON":1,"FARLEIGH":1,"FLAGGY ROCK":1,"GARGETT":1,"HALLIDAY BAY":1,"HAMPDEN":1,"HAZLEDEAN":1,"HOOK ISLAND":1,"KINCHANT DAM":1,"KUTTABUL":1,"LINDEMAN ISLAND":1,"LONG ISLAND":1,"MOUNT CHARLTON":1,"MOUNT CHRISTIAN":1,"MOUNT OSSA":1,"MT CHRISTIAN":1,"MT OSSA":1,"NORTH ETON":1,"OAKENDEN":1,"OWENS CREEK":1,"PINNACLE":1,"S MOLLE":1,"SEAFORTH":1,"SOUTH MOLLE":1,"YALBOROO":1,"CLAIRVIEW":2,"EUNGELLA HINTERLAND":2}},"4742":{"s":{"BURTON":1,"ELPHINSTONE":1,"HAIL CREEK":1,"KEMMIS":1,"MOUNT BRITTON":1,"NEBO":1,"OXFORD":1,"STRATHFIELD":1,"TURRAWULLA":1,"VALKYRIE":1,"EAGLEFIELD":2}},"4743":2,"4746":{"s":{"MAY DOWNS":2,"MIDDLEMOUNT":1}},"4751":1,"4753":1,"4754":1,"4756":1,"4757":{"s":{"BROKEN RIVER":1,"CREDITON":1,"DALRYMPLE HEIGHTS":1,"EUNGELLA":2,"EUNGELLA DAM":2}},"4798":1,"4799":1,"4800":1,"4801":2,"4802":1,"4803":1,"4804":1,"4805":1,"4806":1,"4807":1,"4808":1,"4809":1,"4810":1,"4811":1,"4814":1,"4816":{"s":{"ALLIGATOR CREEK":1,"BALGAL":1,"BALGAL BEACH":1,"BARRINGHA":1,"BROOKHILL":1,"CARDWELL":1,"CARRUCHAN":1,"CLEMANT":1,"CRIMEA":1,"CRYSTAL CREEK":1,"CUNGULLA":1,"DUNK ISLAND":1,"ELLERBECK":1,"GREENVALE":1,"HIDDEN VALLEY":1,"HOMESTEAD":1,"JULAGO":1,"KENNEDY":1,"MACROSSAN":1,"MAJORS CREEK":1,"MAXWELTON":1,"MINGELA":1,"MUTARNEE":1,"NELIA":1,"NOME":1,"PALM ISLAND":1,"PALUMA":1,"PENTLAND":1,"PRAIRIE":1,"RAVENSWOOD":1,"REID RIVER":1,"ROLLINGSTONE":1,"SELLHEIM":1,"THE CAPE":1,"TOOMULLA":1,"TOONPAN":1,"WOODSTOCK":1,"BUCHANAN":3,"MALPAS-TRENTON":3,"SAVANNAH":3,"TORRENS CREEK":3}},"4818":1,"4819":1,"4820":{"s":{"BALFES CREEK":1,"QUEENTON":1,"RICHMOND HILL":1,"LLANARTH":2}},"4821":3,"4822":3,"4823":{"s":{"CARPENTARIA":3,"KYNUNA":3,"NELIA":3,"STOKES":3,"TALDORA":3,"JULIA CREEK":2,"MCKINLAY":2,"WARBURTON":2}},"4824":{"s":{"DEVONCOURT STATION":2,"FOUR WAYS":2,"GIDYA":2,"THREE RIVERS":2,"KURIDALA":1,"OORINDI":1}},"4825":{"s":{"ALEXANDRIA":2,"ALPURRURULAM":2,"ALROY":2,"ANTHONYS LAGOON":2,"BARKLY":2,"BRUNETTE DOWNS":2,"BUCKINGHAM":2,"BUSHY PARK":2,"CARRANDOTTA":2,"DAJARRA":2,"OSBORNE MINE":2,"PITURIE":2,"DUCHESS":1,"FISHER":1,"GUNPOWDER":1,"KALKADOON":1,"LANSKEY":1,"MARY KATHLEEN":1,"PIONEER":1,"RYAN":1,"SPREADBOROUGH":1,"THE MONUMENT":1,"WAVERLEY":1,"FIELDING":3,"GEORGINA":3,"LAWN HILL":3,"RANKEN":3}},"4828":3,"4829":3,"4830":3,"4849":{"s":{"CARDWELL":3,"DAMPER CREEK":3,"HINCHINBROOK":1,"LUMHOLTZ":1,"RUNGOO":1}},"4850":{"s":{"ABERGOWRIE":1,"ALLINGHAM":1,"BEMERSIDE":1,"CORDELIA":1,"DALRYMPLE CREEK":1,"FORESTHOME":1,"FORREST BEACH":1,"GAIRLOCH":1,"GARRAWALT":1,"HALIFAX":1,"HAWKINS CREEK":1,"LONG POCKET":1,"MACKNADE":1,"MOUNT FOX":1,"PEACOCK SIDING":1,"TOOBANNA":1,"UPPER STONE":1,"VALLEY OF LAGOONS":1,"VICTORIA ESTATE":1,"VICTORIA PLANTATION":1,"WALLAMAN":1,"WHARPS":1,"BAMBAROO":2,"LANNERCOST":2,"TAYLORS BEACH":2,"LUCINDA":3,"TREBONNE":3}},"4852":1,"4854":1,"4855":1,"4856":1,"4857":1,"4858":1,"4859":1,"4860":1,"4861":1,"4865":1,"4870":1,"4871":{"s":{"ABINGDON DOWNS":2,"ALMADEN":2,"AMBER":2,"ARBOUIN":2,"ARCHER RIVER":2,"AURUKUN":2,"BASILISK":2,"BLOOMFIELD":2,"BOLWARRA":2,"BOMBEETA":2,"CAMP CREEK":2,"COWLEY":2,"COWLEY BEACH":2,"COWLEY CREEK":2,"CRAIGLEA":2,"CRAIGLIE":2,"CRYSTALBROOK":2,"CURRAJAH":2,"DESAILLY":2,"DIXIE":2,"FOSSILBROOK":2,"FOUR MILE BEACH":2,"GAMBOOLA":2,"GERMANTOWN":2,"GROGANVILLE":2,"GUNUNA":2,"HELENVALE":2,"HIGHBURY":2,"HOLROYD RIVER":2,"HOPE VALE":2,"HOPEVALE":2,"HURRICANE":2,"KIDSTON":2,"KOAH":2,"KOWANYAMA":2,"LAKELAND DOWNS":2,"LAURA":2,"LIZARD":2,"LOCKHART":2,"LOCKHART RIVER":2,"LOWER COWLEY":2,"MOUNT MULGRAVE":2,"MOUNT MULLIGAN":2,"MT CARBINE":2,"MT MOLLOY":2,"MT SURPRISE":2,"NYCHUM":2,"PALMER":2,"PETFORD":2,"PORMPURAAW":2,"RAVENSWORTH":2,"RED RIVER":2,"ROOKWOOD":2,"ROSSVILLE":2,"SPRINGFIELD":2,"WARRUBULLEN":2,"WELLESLEY ISLANDS":2,"WEST WELLESLEY ISLAN":2,"ALOOMBA":1,"BELLENDEN KER":1,"BELLEVUE":1,"BOOGAN":1,"BRAMSTON BEACH":1,"DEERAL":1,"EAST TRINITY":1,"EDWARD RIVER":1,"FISHERY FALLS":1,"FITZROY ISLAND":1,"GLEN BOUGHTON":1,"GREEN ISLAND":1,"JULATTEN":1,"KURRIMINE BEACH":1,"LYNDSIDE":1,"MACALISTER RANGE":1,"MARAMIE":1,"MENA CREEK":1,"MIRIWINNI":1,"MORESBY":1,"MOUNT MOLLOY":1,"SANDY POCKET":1,"SOUTH WELLESLEY ISLA":1,"SOUTHEDGE":1,"STAATEN":1,"STOCKTON":1,"THORNBOROUGH":1,"UTCHEE CREEK":1,"WANGAN":1,"WAUGH POCKET":1,"WOOPEN CREEK":1,"WROTHAM":1,"WUJAL WUJAL":1,"YAGOONYA":1,"YARRABAH":1,"YARRADEN":1,"BLACKBULL":3,"BULLERINGA":3,"CHILLAGOE":3,"CLARAVILLE":3,"COEN":3,"CONJUBOY":3,"CORALIE":3,"CROYDON":3,"EAST CREEK":3,"EINASLEIGH":3,"ESMERALDA":3,"FORSAYTH":3,"GEORGETOWN":3,"GILBERT RIVER":3,"KARRON":3,"LAKEFIELD":3,"LAKELAND":3,"LYNDHURST":3,"MORNINGTON ISLAND":3,"MOUNT CARBINE":3,"MOUNT SURPRISE":3,"NORTHHEAD":3,"PORTLAND ROADS":3,"STRATHMORE":3,"TALAROO":3}},"4872":1,"4873":{"s":{"BAMBOO":1,"BONNIE DOON":1,"CASSOWARY":1,"COOYA BEACH":1,"FINLAY VALE":1,"LOW ISLES":1,"MIALLO":1,"MOSSMAN":1,"MOSSMAN GORGE":1,"NEWELL":1,"OAK BEACH":1,"SHANNONVALE":1,"CAPE TRIBULATION":2,"COW BAY":2,"DAGMAR":2,"DAINTREE":2,"DEDIN":2,"DIWAN":2,"FOREST CREEK":2,"KIMBERLEY":2,"LOWER DAINTREE":2,"NOAH":2,"ROCKY POINT":2,"SPURGEON":2,"STEWART CREEK VALLEY":2,"SYNDICATE":2,"THORNTON BEACH":2,"UPPER DAINTREE":2,"WANGETTI BEACH":2,"WHYANBEEL":2,"WONGA":2,"WONGA BEACH":2}},"4874":3,"4875":3,"4876":{"s":{"BAMAGA":3,"INJINOO":3,"NEW MAPOON":3,"PUNSAND":3,"SEISIA":3,"UMAGICIO":3,"UMAGICO":1}},"4877":1,"4880":1,"4881":1,"4883":1,"4884":1,"4885":1,"4886":1,"4887":{"s":{"HERBERTON":1,"KALUNGA":1,"MOOMIN":1,"WATSONVILLE":1,"WONDECLA":1,"IRVINEBANK":2}},"4888":{"s":{"EVELYN":1,"RAVENSHOE":1,"KABAN":2,"MILLSTREAM":3,"TUMOULIN":3}},"4890":3,"4891":3,"4892":{"s":{"ABINGDON DOWNS":3,"ARCHER RIVER":3,"AURUKUN":3,"COEN":3,"DIXIE":3,"EDWARD RIVER":3,"GAMBOOLA":3,"GUNUNA":3,"HIGHBURY":3,"HOLROYD RIVER":3,"IRON RANGE":3,"KOWANYAMA":3,"LAKEFIELD":3,"LAURA":3,"LIZARD":3,"LOCKHART":3,"LOCKHART RIVER":3,"LYNDSIDE":3,"MARAMIE":3,"MOUNT MULGRAVE":3,"PALMER":3,"PORMPURAAW":3,"RAVENSWORTH":3,"RED RIVER":3,"SOUTH WELLESLEY ISLA":3,"STAATEN":3,"WELLESLEY ISLANDS":3,"WEST WELLESLEY ISLAN":3,"YAGOONYA":3,"YARRADEN":3,"ARBOUIN":2,"BELLEVUE":2,"GROGANVILLE":2,"WROTHAM":2}},"4895":{"s":{"AYTON":2,"DEGARRA":2,"ENDEAVOUR FALLS":2,"HELENVALE":2,"HOPE VALE":2,"BLOOMFIELD":1,"WUJAL WUJAL":1,"COOKTOWN":3,"ROSSVILLE":3,"STARCKE":3}},"5131":1,"5132":1,"5133":1,"5134":1,"5136":1,"5140":1,"5153":1,"5172":1,"5203":1,"5204":1,"5211":1,"5214":1,"5220":1,"5221":1,"5222":1,"5223":1,"5237":1,"5238":1,"5250":1,"5251":1,"5252":1,"5253":1,"5254":1,"5255":1,"5256":1,"5259":1,"5260":3,"5261":3,"5262":1,"5263":1,"5264":1,"5265":3,"5266":{"s":{"BUNBURY":2,"COLEBATCH":3,"DEEPWATER":3,"TINTINARA":3}},"5267":{"s":{"BRIMBAGO":2,"LAFFER":2,"PETHERICK":2,"WILLALOOKA":2,"WIRREGA":2,"COOMBE":3,"MAKIN":3,"MCCALLUM":3,"MOUNT CHARLES":3,"SHAUGH":3,"KEITH":1,"SHERWOOD":1}},"5268":{"s":{"BANGHAM":1,"CANNAWIGARA":1,"SENIOR":1,"WESTERN FLAT":1,"BORDERTOWN SOUTH":2,"CANGARA":2,"LOWAN VALE":2,"POOGINAGORIC":2}},"5269":{"s":{"CUSTON":2,"WOLSELEY":2,"PINE HILL":1}},"5270":{"s":{"BUCKINGHAM":1,"CAREW":1,"KONGAL":1,"MUNDULLA":1,"SWEDE FLAT":1,"MUNDULLA WEST":2}},"5271":1,"5272":1,"5273":1,"5275":1,"5276":1,"5277":1,"5278":1,"5279":1,"5280":1,"5291":1,"5301":{"s":{"CARCUMA":3,"NETHERTON":3,"WILKAWATT":3,"GERANIUM":1,"JABUK":1,"MOORLANDS":1,"PARRAKIE":1,"PEAKE":1,"SHERLOCK":1}},"5302":{"s":{"LAMEROO":1,"NGARKAT":3}},"5303":1,"5304":{"s":{"KARTE":1,"KRINGIN":1,"PINNAROO":1,"PEEBINGA":3}},"5306":1,"5307":1,"5308":1,"5309":1,"5310":1,"5311":1,"5320":1,"5322":1,"5330":1,"5332":1,"5333":1,"5340":1,"5343":1,"5353":1,"5354":1,"5356":1,"5357":1,"5360":1,"5371":1,"5373":1,"5374":1,"5380":1,"5381":1,"5400":{"s":{"MAGDALA":1,"PINKERTON PLAINS":2,"WASLEYS":2,"WOOLSHEDS":2}},"5401":{"s":{"ALMA":1,"SALTER SPRINGS":1,"HAMLEY BRIDGE":2}},"5410":{"s":{"LINWOOD":2,"STOCKPORT":1}},"5411":1,"5412":1,"5413":1,"5414":1,"5416":1,"5417":{"s":{"BALAH":1,"BOOBOROWIE":1,"CANEGRASS":1,"DANGGALI":1,"PINE VALLEY STATION":1,"WARNES":1,"FARAWAY HILL":2,"OLD KOOMOOLOO":2,"STURT VALE":2,"OAKVALE STATION":3,"QUONDONG":3}},"5418":1,"5419":1,"5420":1,"5421":1,"5422":1,"5430":1,"5431":1,"5432":{"s":{"BARATTA":2,"BIBLIANDO":2,"WILLIPPA":2,"BELTON":1,"CARRIETON":1,"CRADOCK":1,"HOLOWILIENA":1,"HOLOWILIENA SOUTH":1,"MOOCKRA":1,"THREE CREEKS":1,"WILCOWIE":1,"WITCHITIE":1,"YANYARRIE":1}},"5433":1,"5434":{"s":{"BARNDIOOTA":1,"BLACK HILL STATION":1,"FLINDERS RANGES":1,"HAWKER":1,"KANYAKA":1,"MOUNT HAVELOCK":1,"PRELINNA":1,"SHAGGY RIDGE":1,"WORUMBA":1,"UPALINNA":2,"WILLOW SPRINGS":2}},"5440":{"s":{"ABMINGA STATION":1,"BILLEROO WEST":1,"BIMBOWRIE":1,"BINDARRAH":1,"BOOLCOOMATTA":1,"BULLOO CREEK":1,"COCKBURN":1,"DEVONBOROUGH DOWNS":1,"KALABITY":1,"KALKAROO":1,"MANNA HILL":1,"MANNAHILL":1,"MINGARY":1,"MOOLEULOOLOO":1,"MULYUNGARIE":1,"MUNDI MUNDI":1,"MUTOOROO":1,"OLARY":1,"OULNINA":1,"OUTALPA":1,"PINE CREEK STATION":1,"TEPCO STATION":1,"TIKALINA":1,"WADNAMINGA":1,"WAUKARINGA":1,"WIAWERA":1,"WOMPINIE":1,"YARRAMBA":1,"YUNTA":1,"BENDA":2,"CURNAMONA":2,"ERUDINA":2,"FLORINA STATION":2,"FROME DOWNS":2,"KOONAMORE":2,"MANUNDA STATION":2,"MELTON STATION":2,"MOUNT VICTOR STATION":2,"NETLEY GAP":2,"OULNINA PARK":2,"PLUMBAGO":2,"QUINYAMBIE":2,"WEEKEROO":2,"WINNININNIE":2,"GRAMPUS":3,"LAKE FROME":3,"MARTINS WELL":3,"NACKARA":3,"PUALCO RANGE":3}},"5453":1,"5454":1,"5455":1,"5460":{"s":{"BARABBA":2,"OWEN":1,"PINERY":1,"STOCKYARD CREEK":1}},"5461":1,"5462":1,"5464":1,"5470":1,"5472":1,"5473":1,"5480":1,"5481":1,"5482":1,"5485":1,"5490":1,"5491":1,"5493":1,"5495":1,"5501":1,"5502":{"s":{"KORUNYE":2,"REEVES PLAINS":2,"RED BANKS":1,"REDBANKS":1}},"5510":1,"5520":1,"5522":1,"5523":1,"5540":1,"5550":1,"5554":1,"5555":1,"5558":1,"5560":1,"5571":1,"5573":1,"5575":1,"5576":1,"5577":1,"5580":1,"5581":1,"5582":1,"5583":1,"5600":1,"5601":1,"5606":1,"5607":{"s":{"BOSTON":1,"BROOKER":1,"CHARLTON GULLY":1,"COOMUNGA":1,"COULTA":1,"DUCK PONDS":1,"FOUNTAIN":1,"GREEN PATCH":1,"HAWSON":1,"KARKOO":1,"KELLIDIE BAY":1,"KIANA":1,"KOPPIO":1,"LIPSON":1,"MITCHELL":1,"MOODY":1,"MOUNT DRUMMOND":1,"MOUNT DUTTON BAY":1,"MOUNT HOPE":1,"MURDINGA":1,"PEACHNA":1,"PEARLAH":1,"POONINDIE":1,"SHERINGA":1,"SLEAFORD":1,"SULLIVAN":1,"TOOLIGIE":1,"WARRACHIE":1,"WARROW":1,"WARUNDA":1,"WHITES FLAT":1,"WHITES RIVER":1,"YALLUNDA FLAT":1,"VENUS BAY":2}},"5630":1,"5631":1,"5632":2,"5633":1,"5640":1,"5641":1,"5642":1,"5650":1,"5651":1,"5652":{"s":{"PANEY":1,"WUDINNA":1,"PYGERY":2}},"5653":1,"5654":{"s":{"COCATA":1,"KARCULTABY":1,"MOUNT DAMPER":1,"MINNIPA":2}},"5655":{"s":{"BOCKELBERG":1,"KALDOONERA":1,"POOCHERA":1,"PYGERY":1,"GAWLER RANGES":3,"NARLABY":3,"LOCKES CLAYPAN":2}},"5660":1,"5661":1,"5670":{"s":{"BRAMFIELD":1,"COLTON":1,"COOLILLIE":1,"ELLISTON":1,"KAPPAWANTA":1,"MOUNT JOY":1,"MOUNT WEDGE":1,"MT WEDGE":1,"PALKAGEE":1,"POLDA":1,"ULYERRA":1,"TALIA":2}},"5671":{"s":{"BAIRD BAY":3,"CALCA":3,"MORTANA":3,"MOUNT COOPER":3,"PORT KENNY":3,"COLLEY":1,"TYRINGA":1,"WITERA":1}},"5680":{"s":{"CARAWA":3,"CHINBINGINA":3,"HASLAM":3,"LAURA BAY":3,"NUNJIKOMPITA":3,"PETINA":3,"PUNTABIE":3,"PUREBA":3,"CHANDADA":1,"EBA ANCHORAGE":1,"INKSTER":1,"MARYVALE":1,"MUDAMUCKLA":1,"PERLUBIE":1,"PIEDNIPPIE":1,"PINJARRA STATION":1,"SCEALE BAY":1,"WESTALL":1,"YANERBIE":1}},"5690":{"s":{"BOOKABIE":1,"CHARRA":1,"CHUNDARIA":1,"COORABIE":1,"FOWLERS BAY":1,"KALANBI":1,"KOONIBBA":1,"MALTEE":1,"MERGHINY":1,"MITCHIDY MOOLA":1,"NADIA":1,"NANBONA":1,"PENONG":1,"UWORRA":1,"WANDANA":1,"WATRABA":1,"WHITE WELL CORNER":1,"YALATA":1,"NULLARBOR":3,"NUNDROO":3,"OAK VALLEY":3,"YELLABINNA":2}},"5700":1,"5701":3,"5710":1,"5713":{"s":{"EMEROO":3,"ISLAND LAGOON":3,"LAKE TORRENS":2,"PERNATTY":2,"LAKE TORRENS STATION":1,"OAKDEN HILLS":1,"SOUTH GAP":1,"WINTABATINYANA":1}},"5715":1,"5717":{"s":{"HILTABA":3,"KOKATHA":3,"KOLENDO":3,"KONDOOLKA":3,"LAKE EVERARD":3,"MOONAREE":3,"MOUNT IVE":3,"NONNING":3,"THURLGA":3,"UNO":3,"YARDEA":3,"LAKE GAIRDNER":2,"MAHANEWO":2,"LAKE MACFARLANE":1,"SIAM":1}},"5719":3,"5720":{"s":{"ARCOONA":2,"BOSWORTH":2,"BILLA KALINA":3,"MILLERS CREEK":3,"MOUNT EBA":3,"MOUNT VIVIAN":3,"PARAKYLIA":3,"PURPLE DOWNS":3,"STUARTS CREEK":3,"PIMBA":1,"WOOMERA":1}},"5722":{"s":{"ANDAMOOKA":3,"ANDAMOOKA STATION":1}},"5723":3,"5724":3,"5725":1,"5730":{"s":{"ALPANA":2,"ANGORIGINA":2,"EDIACARA":2,"GUM CREEK STATION":2,"MOOLOOLOO":2,"MOORILLAH":2,"MOTPENA":2,"MOUNT FALKLAND":2,"NILPENA":2,"ORATUNGA STATION":2,"WIRREALPA":2,"BELTANA":1,"BELTANA STATION":1,"BLINMAN":1,"PARACHILNA":1,"NARRINA":3,"PUTTAPA":3,"WARRAWEENA":3}},"5731":{"s":{"BOLLARDS LAGOON":3,"COOPERS CREEK":3,"CORDILLO DOWNS":3,"DURHAM DOWNS":3,"GIDGEALPA":3,"INNAMINCKA":3,"LEIGH CREEK":3,"LINDON":3,"LYNDHURST":3,"MERTY MERTY":3,"MOOLAWATANA":3,"MOUNT FREELING":3,"MOUNT LYNDHURST":3,"MULGARIA":3,"MURNPEOWIE":3,"MYRTLE SPRINGS":3,"STRZELECKI DESERT":3,"WITCHELINA":3,"LEIGH CREEK STATION":1}},"5732":3,"5733":{"s":{"ALTON DOWNS STATION":3,"CALLANNA":3,"CLAYTON STATION":3,"CLIFTON HILLS STATIO":3,"COWARIE":3,"DULKANINNA":3,"ETADUNNA":3,"FARINA":3,"KALAMURINA":3,"LAKE EYRE":3,"MARREE":3,"MULKA":3,"MULOORINA":3,"MUNDOWDNA":3,"MUNGERANIE":3,"PANDIE PANDIE":3,"FARINA STATION":1,"MARREE STATION":1}},"5734":3,"6035":1,"6041":1,"6042":1,"6043":1,"6044":1,"6083":1,"6084":1,"6125":1,"6161":1,"6207":1,"6208":1,"6209":1,"6213":1,"6214":1,"6215":{"s":{"HAMEL":1,"LAKE CLIFTON":1,"LAKE PRESTON":1,"NANGA BROOK":1,"PRESTON BEACH":1,"WAROONA":1,"YALGORUP":1,"WAGERUP":3}},"6218":1,"6219":1,"6220":1,"6221":1,"6223":1,"6224":1,"6225":{"s":{"ALLANSON":1,"BOWELLING":1,"BUCKINGHAM":1,"CARDIFF":1,"CHEETARA":1,"COLLIE":1,"COLLIE BURN":1,"COLLIE CARDIFF":1,"EWINGTON":1,"GILFILLAN":1,"HARRIS RIVER":1,"LYALLS MILL":1,"MCALINDEN":1,"MUMBALLUP":1,"MUNGALUP":1,"NOGGERUP":1,"PALMER":1,"PRESTON SETTLEMENT":1,"SHOTTS":1,"TREESVILLE":1,"WILSON PARK":1,"YOURDAMUNG LAKE":1,"MUJA":2,"WORSLEY":2}},"6236":1,"6237":1,"6239":1,"6240":1,"6243":1,"6244":{"s":{"BOYUP BROOK":1,"CHOWERUP":1,"DINNIDUP":1,"DINNINUP":1,"KULIKUP":1,"MAYANUP":1,"SCOTTS BROOK":1,"TONEBRIDGE":1,"TRIGWELL":3}},"6251":1,"6252":1,"6253":1,"6254":1,"6255":1,"6256":1,"6258":1,"6260":1,"6262":{"s":{"BOORARA BROOK":1,"MEERUP":1,"NORTHCLIFFE":1,"SHANNON":1,"WINDY HARBOUR":1,"CROWEA":3}},"6271":1,"6275":{"s":{"BARRABUP":2,"EAST NANNUP":2,"CARLOTTA":1,"CARRADUP":1,"CUNDINUP":1,"DARRADUP":1,"JARRAHWOOD":1,"NANNUP":1,"SCOTT RIVER EAST":1,"YOGANUP":1,"JALBARRAGUP":3}},"6281":1,"6282":1,"6284":{"s":{"BAUDIN":3,"GRACETOWN":1,"TREETON":1}},"6285":{"s":{"BRAMLEY":1,"OSMINGTON":1,"ROSA BROOK":1,"ROSA GLEN":1,"SCHROEDER":3}},"6286":{"s":{"FOREST GROVE":1,"WITCHCLIFFE":1,"REDGATE":3}},"6288":1,"6290":{"s":{"AUGUSTA":1,"DEEPDENE":1,"EAST AUGUSTA":1,"FLINDERS":1,"FLINDERS BAY":1,"KUDARDUP":1,"MOLLOY ISLAND":1,"LEEUWIN":3}},"6302":1,"6304":1,"6306":1,"6308":{"s":{"CODJATOTINE":1,"DWARDA":1,"GILLIMANNING":1,"HASTINGS":1,"KUBBINE":1,"KULYALING":1,"NOOMBLING":1,"PINGELLY":1,"PUMPHREYS BRIDGE":1,"PUMPHREYS BROOK":1,"SPRINGS":1,"STRATHERNE":1,"WANDERING":1,"WEST PINGELLY":1,"EAST PINGELLY":2}},"6309":{"s":{"EAST POPANYINNING":1,"POPANYINNING":1,"WEST POPANYINNING":1,"STRATHERNE":2}},"6311":1,"6312":1,"6313":1,"6315":1,"6316":1,"6317":1,"6318":1,"6320":1,"6321":1,"6322":1,"6323":1,"6324":1,"6326":1,"6327":1,"6328":1,"6330":1,"6333":1,"6335":1,"6336":1,"6337":1,"6338":{"s":{"AMELUP":1,"BORDEN":1,"BOXWOOD HILL":1,"BREMER BAY":2,"DILLON BAY":2,"MAGITUP":2,"MONJEBUP":2,"NALYERLUP":2,"NORTH STIRLINGS":2}},"6341":2,"6343":1,"6346":1,"6348":1,"6350":1,"6351":1,"6352":1,"6353":1,"6355":{"s":{"DUNN ROCK":1,"HOLT ROCK":1,"LAKE BIDDY":1,"LAKE CAMM":1,"LAKE MAGENTA":1,"LAKE VARLEY":1,"LITTLE ITALY":1,"MAGENTA":1,"MOUNT SHERIDAN":1,"NEWDEGATE":1,"VARLEY":1,"EAST NEWDEGATE":3,"SOUTH NEWDEGATE":3}},"6356":{"s":{"HATTER HILL":3,"LAKE KING":1,"MOUNT MADDEN":1,"MT MADDEN":1}},"6357":1,"6358":1,"6359":{"s":{"FORRESTANIA":2,"HYDEN":1,"LITTLE ITALY":3}},"6361":1,"6363":1,"6365":1,"6367":1,"6368":1,"6369":1,"6370":{"s":{"EAST WICKEPIN":2,"KIRK ROCK":1,"LEWISDALE":1,"MALYALLING":1,"WICKEPIN":1,"WOGOLIN":1}},"6372":2,"6373":1,"6375":{"s":{"ADAMSVALE":1,"BILBARIN":1,"CORRIGIN":1,"GORGE ROCK":1,"KUNJIN":1,"KURRENKUTTEN":3}},"6376":1,"6377":1,"6380":1,"6383":{"s":{"BADJALING":2,"BALKULING":1,"CAROLING":1,"CUBBINE":1,"DANGIN":1,"DOODENANNING":1,"DULBELLING":1,"MAWSON":1,"MOUNT STIRLING":1,"QUAIRADING":1,"S CAROLING":1,"SOUTH CAROLING":1,"SOUTH QUAIRADING":1,"WAMENUSKING":1,"YOTING":1}},"6384":1,"6385":1,"6386":1,"6390":1,"6391":1,"6392":{"s":{"BOKAL":1,"BOOLADING":1,"DARDADINE":1,"DARKAN":1,"MEEKING":2}},"6393":1,"6394":{"s":{"BEAUFORT RIVER":3,"BOSCABEL":3,"MOKUP":3,"QUALEUP":3,"BOILUP":1,"CHANGERUP":1,"MURADUP":1,"ORCHID VALLEY":1}},"6395":1,"6396":1,"6397":1,"6398":1,"6401":1,"6403":1,"6405":1,"6407":1,"6409":1,"6410":1,"6411":1,"6412":1,"6413":1,"6414":1,"6415":1,"6417":1,"6418":1,"6419":1,"6420":1,"6421":1,"6422":1,"6423":{"s":{"BOODAROCKIN":1,"CARRABIN":1,"WESTONIA":1,"WARRACHUPPIN":2}},"6424":1,"6425":1,"6426":{"s":{"CORINTHIA":1,"EDWARDS FIND":1,"EVANSTON":1,"GHOOLI":1,"KARALEE":1,"MARVEL LOCH":1,"MOUNT HAMPTON":1,"MOUNT HOLLAND":1,"MOUNT JACKSON":1,"MOUNT PALMER":1,"MT JACKSON":1,"MT PALMER":1,"NO 7 PUMPING STATION":1,"PARKER RANGE":1,"PUMPING STATION NO 7":1,"SKELETON ROCK":1,"SOUTH YILGARN":1,"SOUTHERN CROSS":1,"TURKEY HILL":1,"YELLOWDINE":1,"YILGARN":1,"HOLLETON":3}},"6427":3,"6428":1,"6429":1,"6430":1,"6431":{"s":{"BARDOC":1,"BOORARA":1,"BROAD ARROW":1,"BROWN HILL":1,"BULONG":1,"COMET VALE":1,"DAVYHURST":1,"EDJUDINA":1,"FEYSVILLE":1,"GOONGARRIE":1,"GRANTS PATCH":1,"KANOWNA":1,"KURNALPI":1,"LAKEWOOD":1,"MOUNT MONGER":1,"MT MONGER":1,"PORPHYRY":1,"SCOTIA":1,"TRAFALGAR":1,"WARBURTON":1,"WARBURTON COMMUNITY":1,"WARBURTON RANGE":1,"WOOLGANGIE":1,"YARRI":1,"EMU FLAT":2,"KOOKYNIE":2,"ORA BANDA":2,"PLUMRIDGE LAKES":2}},"6434":{"s":{"CUNDEELEE":1,"GOLDEN RIDGE":1,"HAIG":1,"KARONIE":1,"LOONGANA":1,"PARKESTON":1,"RAWLINNA":1,"REID":1,"ZANTHUS":1,"FORREST":3}},"6435":1,"6436":{"s":{"COPPERFIELD":1,"MENZIES":1,"MOUNT IDA":1,"MT IDA":1,"RIVERINA":1,"ULARRING":2}},"6437":{"s":{"LAWLERS":1,"LEINSTER":1,"SIR SAMUEL":3}},"6438":1,"6439":1,"6440":{"s":{"BANDYA":1,"BEADELL":1,"BURTVILLE":1,"COSMO NEWBERY":1,"LAKE WELLS":1,"LAVERTON":1,"NEALE":1,"MOUNT MARGARET":3,"MT MARGARET":3,"WINDARRA":2}},"6441":3,"6442":{"s":{"KAMBALDA":3,"KAMBALDA EAST":3,"KAMBALDA WEST":1}},"6443":{"s":{"BALLADONIA":3,"CAIGUNA":3,"COCKLEBIDDY":3,"HIGGINSVILLE":3,"MADURA":3,"MUNDRABILLA":3,"DUNDAS":1,"FRASER RANGE":1,"NORSEMAN":1,"WIDGIEMOOLTHA":1,"EUCLA":2}},"6444":1,"6445":1,"6446":1,"6447":1,"6448":1,"6450":1,"6452":1,"6460":1,"6461":1,"6462":1,"6463":1,"6464":1,"6465":1,"6466":1,"6467":1,"6468":1,"6470":1,"6471":1,"6472":{"s":{"BEACON":1,"BIMBIJY":1,"KARROUN HILL":1,"MOUROUBRA":1,"REMLAP":1,"TAMPU":1,"CLEARY":3}},"6473":1,"6475":{"s":{"BADGERIN ROCK":1,"DUKIN":1,"KOORDA":1,"KULARIN":1,"LAKE MARGARETTE":1,"MOLLERIN":1,"NEWCARLBEON":1,"BOORALAMING":2}},"6476":1,"6477":1,"6479":1,"6480":1,"6484":1,"6485":1,"6487":1,"6488":1,"6489":1,"6490":{"s":{"BULAGIN ROCK":1,"BURRAN ROCK":1,"CHANDLER":1,"ELABBIN":1,"NUNGARIN":1,"TALGOMINE":1,"KWELKAN":3}},"6501":1,"6502":1,"6503":1,"6504":1,"6505":1,"6506":1,"6507":1,"6509":1,"6510":1,"6511":1,"6512":1,"6513":1,"6514":1,"6515":1,"6516":{"s":{"DESPERATE BAY":1,"JURIEN":1,"LITTLE ANCHORAGE":1,"JURIEN BAY":2}},"6517":1,"6518":1,"6519":1,"6521":1,"6522":1,"6525":1,"6528":1,"6532":1,"6535":1,"6536":{"s":{"KALBARRI":2,"KALBARRI NATIONAL PA":2,"ZUYTDORP":1}},"6537":{"s":{"DENHAM":1,"DIRK HARTOG ISLAND":1,"MONKEY MIA":1,"NANGA":1,"SHARK BAY":1,"USELESS LOOP":3}},"6553":1,"6554":1,"6555":1,"6556":1,"6558":1,"6560":1,"6562":1,"6564":1,"6566":1,"6567":1,"6568":1,"6569":1,"6571":1,"6572":1,"6574":1,"6575":1,"6603":1,"6605":1,"6606":1,"6608":1,"6609":1,"6612":1,"6613":1,"6614":1,"6616":1,"6618":1,"6620":{"s":{"BUNJIL":3,"PERENJORI":1,"ROTHSAY":1}},"6623":{"s":{"BALLARANGA":1,"BOWGADA":1,"BUNJIL":1,"GUTHA":1,"KOOLANOOKA":1,"MERKANOOKA":1,"MORAWA":1,"PINTHARUKA":3}},"6625":{"s":{"MERKANOOKA":3,"PINTHARUKA":1}},"6627":1,"6628":1,"6630":1,"6631":1,"6632":1,"6635":1,"6638":1,"6639":1,"6640":1,"6642":1,"6646":1,"6701":{"s":{"CARBLA":2,"CORAL BAY":2,"GILROYD":2,"LYNDON":2,"WOODLEIGH":2,"KENNEDY RANGE":1,"MINILYA":1,"WOORAMEL":1,"YANDOO CREEK":1,"NINGALOO":3,"TALISKER":3,"YALARDY":3}},"6705":{"s":{"EAST LYONS RIVER":3,"GASCOYNE RIVER":3,"WEST LYONS RIVER":3,"GASCOYNE JUNCTION":2}},"6707":1,"6710":{"s":{"CANE":1,"ONSLOW":1,"PEEDAMULLA":1,"TALANDJI":1,"YANNARIE":2}},"6711":1,"6712":1,"6713":1,"6714":1,"6715":1,"6716":1,"6718":{"s":{"ROEBOURNE":1,"WHIM CREEK":2}},"6720":1,"6721":{"s":{"PARDOO":2,"REDBANK":1,"STRELLEY":1,"WALLAREENYA":1}},"6722":1,"6723":1,"6725":1,"6728":1,"6731":1,"6733":1,"6740":1,"6743":{"s":{"DURACK":1,"LAKE ARGYLE":1,"GIBB":3,"WARMUN":2}},"6751":{"s":{"CHICHESTER":2,"INNAWANGA":2,"JUNA DOWNS":2,"MULGA DOWNS":2,"KARIJINI":1,"MOUNT SHEILA":1,"NANUTARRA":1,"ROCKLEA":1,"WITTENOOM":1}},"6752":1,"6758":1,"6760":1,"6761":1,"6762":1,"6765":1,"6770":{"s":{"HALLS CREEK":1,"MUELLER RANGES":1,"ORD RIVER":1,"PURNULULU":1,"STURT CREEK":1,"TANAMI":3}},"7012":1,"7026":1,"7027":1,"7030":1,"7054":1,"7109":1,"7112":1,"7119":1,"7120":1,"7139":1,"7140":1,"7150":1,"7151":{"s":{"CASEY":2,"DAVIS":2,"HEARD ISLAND":2,"MCDONALD ISLANDS":2,"MACQUARIE ISLAND":3,"MAWSON":1}},"7163":1,"7170":1,"7172":1,"7173":1,"7176":1,"7182":1,"7183":1,"7184":1,"7185":1,"7186":1,"7187":1,"7190":1,"7213":1,"7214":1,"7215":1,"7216":1,"7252":1,"7254":1,"7255":{"s":{"BLUE ROCKS":2,"EMITA":2,"FLINDERS ISLAND":2,"KILLIECRANKIE":2,"LACKRANA":2,"LEEKA":2,"LOCCOTA":2,"LUGHRATA":2,"MEMANA":2,"RANGA":2,"STRZELECKI":2,"LADY BARRON":3,"PALANA":3,"WHITEMARK":3,"WINGAROO":3}},"7256":1,"7257":2,"7264":1,"7267":1,"7268":1,"7270":1,"7275":1,"7302":1,"7303":1,"7304":1,"7306":1,"7307":1,"7310":1,"7315":1,"7316":1,"7321":1,"7325":1,"7330":{"s":{"ALCOMIE":1,"BRITTONS SWAMP":1,"CHRISTMAS HILLS":1,"COUTA ROCKS":1,"EDITH CREEK":1,"IRISHTOWN":1,"LILEAH":1,"MARRAWAH":1,"NELSON BAY":1,"REDPA":1,"ROGER RIVER":1,"SCOPUS":1,"SOUTH FOREST":1,"ARTHUR RIVER":2,"BROADMEADOWS":2,"MELLA":2,"MENGHA":2,"MONTAGU":2,"NABAGEENA":2,"SCOTCHTOWN":2,"TEMMA":2,"TOGARI":2,"TROWUTTA":2,"WEST MONTAGU":2,"WOOLNORTH":2,"FOREST":3,"THREE HUMMOCK ISLAND":3}},"7466":1,"7467":1,"7468":{"s":{"MACQUARIE HEADS":2,"STRAHAN":1}},"7469":{"s":{"GRANVILLE HARBOUR":1,"RENISON BELL":1,"ZEEHAN":1,"TRIAL HARBOUR":2}}};
+
+// ============================================================
+// SERVICE DEFINITIONS
+// ============================================================
+const SERVICES = {
+  XPDD:    { name: "Road Express", group: "XPDD", securityPct: 0, mhpApplies: true, manualCN: true, resTiers: true, taillift: true, dgFee: 73 },
+  COMP:    { name: "Technology Express", group: "COMP", securityPct: 0, mhpApplies: true, manualCN: false, resTiers: true, taillift: false, dgFee: 242 },
+  FASH:    { name: "Fashion Express", group: "FASH", securityPct: 0, mhpApplies: true, manualCN: true, resTiers: false, taillift: true, dgFee: 242 },
+  AMXP_9:  { name: "9:00 Express", group: "AMXP", securityPct: 9.4, mhpApplies: true, manualCN: true, resTiers: true, taillift: true, dgFee: 242 },
+  AMXP_10: { name: "10:00 Express", group: "AMXP", securityPct: 9.4, mhpApplies: true, manualCN: true, resTiers: true, taillift: true, dgFee: 242 },
+  AMXP_12: { name: "12:00 Express", group: "AMXP", securityPct: 9.4, mhpApplies: true, manualCN: true, resTiers: true, taillift: true, dgFee: 242 },
+  ONFC:    { name: "Overnight Express", group: "ONFC", securityPct: 9.4, mhpApplies: true, manualCN: true, resTiers: true, taillift: true, dgFee: 242 },
+  SDAY:    { name: "Next Flight / Sameday", group: "SDAY", securityPct: 9.4, mhpApplies: true, manualCN: false, resTiers: false, taillift: true, dgFee: 242 },
+  FSFS:    { name: "Failsafe Services", group: "FSFS", securityPct: 6.9, mhpApplies: true, manualCN: false, resTiers: false, taillift: true, dgFee: 242 },
+  DNET:    { name: "Dedicated Networks", group: "DNET", securityPct: 0, mhpApplies: true, manualCN: false, resTiers: false, taillift: true, dgFee: 242 },
+};
+
+// WA Regional: services that qualify
+const WA_REGIONAL_SERVICES = ["XPDD", "FASH", "COMP"];
+
+// ============================================================
+// FUEL SURCHARGE — Dynamic with fallback
+// Tries: 1) Live fetch via CORS proxy  2) GitHub Action cache  3) Hardcoded fallback
+// ============================================================
+const FUEL_SURCHARGE = {
+  rate: 0.232,
+  label: "23.2%",
+  period: "1 Feb 2026 – 28 Feb 2026",
+  nextRate: 0.224,
+  nextLabel: "22.4%",
+  nextPeriod: "1 Mar 2026 – 28 Mar 2026",
+  source: "fallback",       // "live", "cached", or "fallback"
+  lastChecked: null,
+};
+
+// Parse fuel surcharge rates from TNT page HTML
+function parseFuelRates(html) {
+  // Current rate pattern: "From D Month YYYY to D Month YYYY: XX.X%"
+  // The page has the current rate in bold, and previous/next rates nearby
+  const ratePattern = /From\s+(\d{1,2}\s+\w+\s+\d{4})\s+to\s+(\d{1,2}\s+\w+\s+\d{4}):\s*([\d.]+)%/gi;
+  const matches = [];
+  let m;
+  while ((m = ratePattern.exec(html)) !== null) {
+    matches.push({
+      from: m[1].trim(),
+      to: m[2].trim(),
+      rate: parseFloat(m[3]),
+    });
+  }
+  if (matches.length === 0) return null;
+
+  // Sort by date (most recent first) and identify current vs next
+  const now = new Date();
+  const parsed = matches.map(entry => {
+    const fromDate = new Date(entry.from);
+    const toDate = new Date(entry.to);
+    return { ...entry, fromDate, toDate };
+  }).sort((a, b) => b.fromDate - a.fromDate);
+
+  // Find the rate whose period contains today, or the most recent
+  let current = parsed.find(p => p.fromDate <= now && p.toDate >= now);
+  if (!current) current = parsed[0]; // fallback to latest listed
+
+  // Find next period if available
+  const next = parsed.find(p => p.fromDate > now) || 
+               parsed.find(p => p !== current);
+
+  return { current, next };
+}
+
+// Attempt live fetch via CORS proxy
+async function fetchFuelSurchargeLive() {
+  const targetUrl = "https://www.tnt.com/express/en_au/site/how-to/understand-fuel-surcharges.html";
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+  ];
+
+  for (const proxyUrl of proxies) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6000);
+      const resp = await fetch(proxyUrl, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      const rates = parseFuelRates(html);
+      if (rates && rates.current) return rates;
+    } catch (e) {
+      continue; // try next proxy
+    }
+  }
+  return null;
+}
+
+// Attempt to load GitHub Action cached rate
+async function fetchFuelSurchargeCached() {
+  try {
+    // This file will be auto-updated by the GitHub Action in the same repo
+    const resp = await fetch("fuel-rate.json?" + Date.now(), { cache: "no-store" });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (data && data.rate) return data;
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
+
+// Update the FUEL_SURCHARGE object and UI
+function applyFuelRate(rate, label, period, nextRate, nextLabel, nextPeriod, source) {
+  FUEL_SURCHARGE.rate = rate;
+  FUEL_SURCHARGE.label = label;
+  FUEL_SURCHARGE.period = period;
+  if (nextRate) {
+    FUEL_SURCHARGE.nextRate = nextRate;
+    FUEL_SURCHARGE.nextLabel = nextLabel;
+    FUEL_SURCHARGE.nextPeriod = nextPeriod;
+  }
+  FUEL_SURCHARGE.source = source;
+  FUEL_SURCHARGE.lastChecked = new Date().toLocaleString("en-AU");
+  updateFuelBanner();
+}
+
+function updateFuelBanner() {
+  const el = document.getElementById("fuelStatus");
+  if (!el) return;
+  const src = FUEL_SURCHARGE.source;
+  const icon = src === "live" ? "🟢" : src === "cached" ? "🟡" : "⚪";
+  const label = src === "live" ? "Live rate" : src === "cached" ? "Auto-updated rate" : "Hardcoded rate";
+  el.innerHTML = `${icon} Fuel surcharge: <strong>${FUEL_SURCHARGE.label}</strong> (${FUEL_SURCHARGE.period}) — <em>${label}</em>`;
+  el.className = `fuel-banner fuel-${src}`;
+}
+
+// Boot: try live → cached → fallback
+async function initFuelSurcharge() {
+  // 1. Try live
+  const live = await fetchFuelSurchargeLive();
+  if (live) {
+    const c = live.current;
+    const n = live.next;
+    applyFuelRate(
+      c.rate / 100, c.rate + "%", `${c.from} – ${c.to}`,
+      n ? n.rate / 100 : FUEL_SURCHARGE.nextRate,
+      n ? n.rate + "%" : FUEL_SURCHARGE.nextLabel,
+      n ? `${n.from} – ${n.to}` : FUEL_SURCHARGE.nextPeriod,
+      "live"
+    );
+    return;
+  }
+
+  // 2. Try GitHub Action cache
+  const cached = await fetchFuelSurchargeCached();
+  if (cached) {
+    applyFuelRate(
+      cached.rate, cached.label, cached.period,
+      cached.nextRate || FUEL_SURCHARGE.nextRate,
+      cached.nextLabel || FUEL_SURCHARGE.nextLabel,
+      cached.nextPeriod || FUEL_SURCHARGE.nextPeriod,
+      "cached"
+    );
+    return;
+  }
+
+  // 3. Fallback — use hardcoded values
+  updateFuelBanner();
+}
+
+// Run on page load
+initFuelSurcharge();
+
+// Perth metro postcodes (excluded from WA Regional surcharge)
+function isPerthMetro(pc) {
+  const n = parseInt(pc);
+  return n >= 6000 && n <= 6199;
+}
+
+function isWARegional(pc) {
+  const n = parseInt(pc);
+  return n >= 6200 && n <= 6999;
+}
+
+// ============================================================
+// REMOTE ZONE LOOKUP
+// ============================================================
+function getRemoteZone(postcode, suburb) {
+  const data = REMOTE_ZONES[postcode];
+  if (data === undefined) return 0; // not remote
+  if (typeof data === "number") return data;
+  // Mixed zone postcode
+  if (data.s && suburb) {
+    const upper = suburb.toUpperCase();
+    if (data.s[upper] !== undefined) return data.s[upper];
+  }
+  return -1; // mixed, needs suburb selection
+}
+
+function getSuburbsForPostcode(postcode) {
+  const data = REMOTE_ZONES[postcode];
+  if (!data || typeof data === "number") return null;
+  if (data.s) return data.s;
+  return null;
+}
+
+// ============================================================
+// SUBURB PICKERS
+// ============================================================
+function updateSuburbPicker(pcInputId, wrapId, selectId) {
+  const pc = document.getElementById(pcInputId).value.trim();
+  const wrap = document.getElementById(wrapId);
+  const sel = document.getElementById(selectId);
+
+  const suburbs = getSuburbsForPostcode(pc);
+  if (!suburbs) {
+    wrap.classList.add("hidden");
+    return;
+  }
+
+  wrap.classList.remove("hidden");
+  sel.innerHTML = '<option value="">-- Select suburb --</option>';
+  const sorted = Object.keys(suburbs).sort();
+  sorted.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = `${s} (Zone ${suburbs[s]})`;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById("pickupPC").addEventListener("input", () => updateSuburbPicker("pickupPC", "pickupSuburbWrap", "pickupSuburb"));
+document.getElementById("deliveryPC").addEventListener("input", () => updateSuburbPicker("deliveryPC", "deliverySuburbWrap", "deliverySuburb"));
+
+// Checkbox active state
+["resPickup", "resDelivery"].forEach(id => {
+  document.getElementById(id).addEventListener("change", function() {
+    this.closest(".checkbox-item").classList.toggle("active", this.checked);
+  });
+});
+
+// ============================================================
+// DYNAMIC ITEM ROWS
+// ============================================================
+function buildItemRows(count) {
+  const container = document.getElementById("itemRows");
+  const existing = container.querySelectorAll(".item-row");
+  const currentCount = existing.length;
+
+  // Preserve existing values
+  const values = [];
+  existing.forEach(row => {
+    values.push({
+      l: row.querySelector(".item-l").value,
+      w: row.querySelector(".item-w").value,
+      h: row.querySelector(".item-h").value,
+      wt: row.querySelector(".item-wt").value,
+    });
+  });
+
+  // Build header + rows
+  let html = `<div class="item-row-header">
+    <span></span><span>Length (cm)</span><span>Width (cm)</span><span>Height (cm)</span><span>Weight (kg)</span>
+  </div>`;
+
+  for (let i = 0; i < count; i++) {
+    const v = values[i] || { l: "", w: "", h: "", wt: "" };
+    html += `<div class="item-row">
+      <div class="item-num">${i + 1}</div>
+      <div class="field"><input type="number" class="item-l" placeholder="cm" min="0" step="0.1" value="${v.l}"></div>
+      <div class="field"><input type="number" class="item-w" placeholder="cm" min="0" step="0.1" value="${v.w}"></div>
+      <div class="field"><input type="number" class="item-h" placeholder="cm" min="0" step="0.1" value="${v.h}"></div>
+      <div class="field"><input type="number" class="item-wt" placeholder="kg" min="0" step="0.1" value="${v.wt}"></div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// Listen for item count changes
+document.getElementById("itemCount").addEventListener("input", function() {
+  const count = Math.max(1, Math.min(50, parseInt(this.value) || 1));
+  buildItemRows(count);
+});
+
+// Initialize with 1 row
+buildItemRows(1);
+
+// ============================================================
+// OVERSIZE TIERS
+// ============================================================
+const OVERSIZE = [
+  { code: "OS0", min: 150, max: 199.9, fee: 17.00, label: "1.50–1.99m" },
+  { code: "OS1", min: 200, max: 299.9, fee: 37.00, label: "2.00–2.99m" },
+  { code: "OS2", min: 300, max: 399.9, fee: 49.00, label: "3.00–3.99m" },
+  { code: "OS3", min: 400, max: 499.9, fee: 303.50, label: "4.00–4.99m" },
+  { code: "OS4", min: 500, max: 599.9, fee: 546.00, label: "5.00–5.99m" },
+  { code: "OS5", min: 600, max: 99999, fee: 727.00, label: "6.00m+" },
+];
+
+// ============================================================
+// TAIL LIFT TIERS
+// ============================================================
+const TAILLIFT = [
+  { code: "1", min: 30, max: 99, fee: 45.00, label: "30–99 kg" },
+  { code: "2", min: 100, max: 299, fee: 85.00, label: "100–299 kg" },
+  { code: "3", min: 300, max: 499, fee: 120.00, label: "300–499 kg" },
+  { code: "4", min: 500, max: 999999, fee: 250.00, label: "500+ kg" },
+];
+
+// ============================================================
+// HEAVYWEIGHT RESIDENTIAL TIERS
+// ============================================================
+const HW_RES = [
+  { code: "1", min: 30, max: 99.99, fee: 63.00, label: "30–99 kg" },
+  { code: "2", min: 100, max: 999999, fee: 198.00, label: "100+ kg" },
+];
+
+// ============================================================
+// REMOTE AREA SURCHARGE RATES
+// ============================================================
+const REMOTE_RATES = {
+  1: { perKg: 0.54, min: 37 },
+  2: { perKg: 0.66, min: 45 },
+  3: { perKg: 1.03, min: 70 },
+};
+
+// ============================================================
+// CALCULATE
+// ============================================================
+function calculate() {
+  const svcKey = document.getElementById("service").value;
+  const freightCharge = parseFloat(document.getElementById("freightCharge").value) || 0;
+  const pickupPC = document.getElementById("pickupPC").value.trim();
+  const deliveryPC = document.getElementById("deliveryPC").value.trim();
+  const pickupSuburb = document.getElementById("pickupSuburb").value;
+  const deliverySuburb = document.getElementById("deliverySuburb").value;
+  const resPickup = document.getElementById("resPickup").checked;
+  const resDelivery = document.getElementById("resDelivery").checked;
+
+  // Validation
+  if (!svcKey) { alert("Please select a service type."); return; }
+  if (!pickupPC || !deliveryPC) { alert("Please enter both collection and delivery postcodes."); return; }
+
+  const svc = SERVICES[svcKey];
+
+  // ---------- READ ALL ITEMS ----------
+  const itemRows = document.querySelectorAll("#itemRows .item-row");
+  const items = [];
+  let hasInvalid = false;
+
+  itemRows.forEach((row, idx) => {
+    const l = parseFloat(row.querySelector(".item-l").value) || 0;
+    const w = parseFloat(row.querySelector(".item-w").value) || 0;
+    const h = parseFloat(row.querySelector(".item-h").value) || 0;
+    const wt = parseFloat(row.querySelector(".item-wt").value) || 0;
+    if (l <= 0 || w <= 0 || h <= 0 || wt <= 0) hasInvalid = true;
+    items.push({ l, w, h, wt, idx: idx + 1 });
+  });
+
+  if (items.length === 0 || hasInvalid) {
+    alert("Please enter valid length, width, height, and weight for all items.");
+    return;
+  }
+
+  const itemCount = items.length;
+
+  // ---------- PER-ITEM ANALYSIS ----------
+  let totalDeadWeight = 0;
+  let totalCubicWeight = 0;
+  let mhpCount = 0;
+  const mhpItems = [];     // item numbers that trigger MHP
+  let oversizeTotal = 0;
+  const oversizeItems = []; // { itemNum, tier }
+
+  items.forEach(item => {
+    const lCm = item.l, wCm = item.w, hCm = item.h, wt = item.wt;
+    const lMm = lCm * 10, wMm = wCm * 10, hMm = hCm * 10;
+    const lM = lCm / 100, wM = wCm / 100, hM = hCm / 100;
+    const cubicWt = lM * wM * hM * 250;
+
+    totalDeadWeight += wt;
+    totalCubicWeight += cubicWt;
+
+    // MHP check per item
+    const diagMm = Math.sqrt(lMm * lMm + wMm * wMm + hMm * hMm);
+    const sizeIssue = lMm < 200 || lMm > 1200 || wMm < 100 || wMm > 600 || hMm < 15 || hMm > 800 || diagMm > 1200;
+    const weightIssue = wt < 0.25 || wt > 30;
+    if (sizeIssue || weightIssue) {
+      mhpCount++;
+      const reasons = [];
+      if (lMm < 200) reasons.push("L<200mm");
+      if (lMm > 1200) reasons.push("L>1200mm");
+      if (wMm < 100) reasons.push("W<100mm");
+      if (wMm > 600) reasons.push("W>600mm");
+      if (hMm < 15) reasons.push("H<15mm");
+      if (hMm > 800) reasons.push("H>800mm");
+      if (diagMm > 1200) reasons.push("Diag>1200mm");
+      if (wt < 0.25) reasons.push("Wt<250g");
+      if (wt > 30) reasons.push("Wt>30kg");
+      mhpItems.push({ num: item.idx, reasons });
+    }
+
+    // Oversize check per item
+    const maxDimCm = Math.max(lCm, wCm, hCm);
+    const osTier = OVERSIZE.find(t => maxDimCm >= t.min && maxDimCm <= t.max);
+    if (osTier) {
+      oversizeTotal += osTier.fee;
+      oversizeItems.push({ num: item.idx, tier: osTier, maxDim: maxDimCm });
+    }
+  });
+
+  // ---------- CONSIGNMENT TOTALS ----------
+  const chargeableWeight = Math.max(totalDeadWeight, totalCubicWeight);
+
+  const surcharges = [];
+  const flags = [];
+  let totalFixed = 0;
+
+  // ---------- MHP (per item) ----------
+  if (mhpCount > 0) {
+    const mhpTotal = 16.50 * mhpCount;
+    const itemDetail = mhpItems.map(i => `Item ${i.num} (${i.reasons.join(", ")})`).join("; ");
+    surcharges.push({
+      code: "MHP",
+      name: "Manual Handling Processing",
+      amount: mhpTotal,
+      detail: `$16.50 × ${mhpCount} of ${itemCount} item(s): ${itemDetail}`,
+      section: "handling"
+    });
+    totalFixed += mhpTotal;
+  }
+
+  // ---------- OVERSIZE (per item) ----------
+  if (oversizeItems.length > 0) {
+    const osDetail = oversizeItems.map(i => `Item ${i.num}: ${(i.maxDim / 100).toFixed(2)}m → ${i.tier.code} $${i.tier.fee.toFixed(2)}`).join("; ");
+    surcharges.push({
+      code: "OS",
+      name: "Oversize Freight",
+      amount: oversizeTotal,
+      detail: `Per item: ${osDetail}`,
+      section: "handling"
+    });
+    totalFixed += oversizeTotal;
+  }
+
+  // ---------- RESIDENTIAL PICKUP ----------
+  if (resPickup) {
+    surcharges.push({
+      code: "RSP",
+      name: "Residential Pickup",
+      amount: 6.50,
+      detail: "Per consignment",
+      section: "residential"
+    });
+    totalFixed += 6.50;
+
+    // Heavyweight residential pickup
+    if (svc.resTiers) {
+      const hwTier = HW_RES.find(t => chargeableWeight >= t.min && chargeableWeight <= t.max);
+      if (hwTier) {
+        surcharges.push({
+          code: `RP${hwTier.code}`,
+          name: "Heavyweight Residential Pickup",
+          amount: hwTier.fee,
+          detail: `Chargeable weight: ${chargeableWeight.toFixed(1)}kg (${hwTier.label}). Applies to AMXP, ONFC, COMP, XPDD.`,
+          section: "residential"
+        });
+        totalFixed += hwTier.fee;
+      }
+    }
+  }
+
+  // ---------- RESIDENTIAL DELIVERY ----------
+  if (resDelivery) {
+    surcharges.push({
+      code: "RSD",
+      name: "Residential Delivery",
+      amount: 6.50,
+      detail: "Per consignment",
+      section: "residential"
+    });
+    totalFixed += 6.50;
+
+    // Heavyweight residential delivery
+    if (svc.resTiers) {
+      const hwTier = HW_RES.find(t => chargeableWeight >= t.min && chargeableWeight <= t.max);
+      if (hwTier) {
+        surcharges.push({
+          code: `RD${hwTier.code}`,
+          name: "Heavyweight Residential Delivery",
+          amount: hwTier.fee,
+          detail: `Chargeable weight: ${chargeableWeight.toFixed(1)}kg (${hwTier.label}). Applies to AMXP, ONFC, COMP, XPDD.`,
+          section: "residential"
+        });
+        totalFixed += hwTier.fee;
+      }
+    }
+  }
+
+  // ---------- TAIL LIFT (flagged, not auto-charged) ----------
+  if (svc.taillift && chargeableWeight >= 30) {
+    const tlTier = TAILLIFT.find(t => chargeableWeight >= t.min && chargeableWeight <= t.max);
+    if (tlTier) {
+      flags.push({
+        code: `TP${tlTier.code}`,
+        name: "Tail Lift Pickup",
+        fee: tlTier.fee,
+        detail: `Applies if no forklift/MHE at pickup. ${tlTier.label} = $${tlTier.fee.toFixed(2)}`,
+        type: "amber"
+      });
+      flags.push({
+        code: `TD${tlTier.code}`,
+        name: "Tail Lift Delivery",
+        fee: tlTier.fee,
+        detail: `Applies if no forklift/MHE at delivery. ${tlTier.label} = $${tlTier.fee.toFixed(2)}`,
+        type: "amber"
+      });
+    }
+  }
+
+  // ---------- REMOTE AREA PICKUP ----------
+  const pickupZone = getRemoteZone(pickupPC, pickupSuburb);
+  if (pickupZone > 0) {
+    const rate = REMOTE_RATES[pickupZone];
+    const perKgCharge = rate.perKg * chargeableWeight;
+    const remoteCharge = Math.max(perKgCharge, rate.min);
+    surcharges.push({
+      code: pickupZone <= 1 ? "KP1/IP1" : pickupZone === 2 ? "KP2/IP2" : "KP3/IP3",
+      name: `Remote Area Pickup (Zone ${pickupZone})`,
+      amount: remoteCharge,
+      detail: `Greater of: $${rate.perKg.toFixed(2)}/kg × ${chargeableWeight.toFixed(1)}kg = $${perKgCharge.toFixed(2)}, or minimum $${rate.min}`,
+      section: "location"
+    });
+    totalFixed += remoteCharge;
+  } else if (pickupZone === -1) {
+    flags.push({
+      code: "KP?",
+      name: "Remote Area Pickup – Suburb Required",
+      fee: null,
+      detail: `Postcode ${pickupPC} has suburbs in multiple remote zones. Select your suburb above for accurate calculation.`,
+      type: "amber"
+    });
+  }
+
+  // ---------- REMOTE AREA DELIVERY ----------
+  const deliveryZone = getRemoteZone(deliveryPC, deliverySuburb);
+  if (deliveryZone > 0) {
+    const rate = REMOTE_RATES[deliveryZone];
+    const perKgCharge = rate.perKg * chargeableWeight;
+    const remoteCharge = Math.max(perKgCharge, rate.min);
+    surcharges.push({
+      code: deliveryZone <= 1 ? "KD1/ID1" : deliveryZone === 2 ? "KD2/ID2" : "KD3/ID3",
+      name: `Remote Area Delivery (Zone ${deliveryZone})`,
+      amount: remoteCharge,
+      detail: `Greater of: $${rate.perKg.toFixed(2)}/kg × ${chargeableWeight.toFixed(1)}kg = $${perKgCharge.toFixed(2)}, or minimum $${rate.min}`,
+      section: "location"
+    });
+    totalFixed += remoteCharge;
+  } else if (deliveryZone === -1) {
+    flags.push({
+      code: "KD?",
+      name: "Remote Area Delivery – Suburb Required",
+      fee: null,
+      detail: `Postcode ${deliveryPC} has suburbs in multiple remote zones. Select your suburb above for accurate calculation.`,
+      type: "amber"
+    });
+  }
+
+  // ---------- WA REGIONAL ----------
+  const svcCode = svcKey.replace(/_\d+$/, ""); // strip suffix like _9, _10 etc.
+  const isWaService = WA_REGIONAL_SERVICES.includes(svcCode) || WA_REGIONAL_SERVICES.includes(svc.group);
+  const waPickup = isWARegional(pickupPC);
+  const waDelivery = isWARegional(deliveryPC);
+
+  if (isWaService && (waPickup || waDelivery)) {
+    const direction = waPickup && waDelivery ? "from and to" : waPickup ? "from" : "to";
+    if (freightCharge > 0) {
+      const waCharge = freightCharge * 0.10;
+      surcharges.push({
+        code: "LR",
+        name: "WA Regional Surcharge",
+        amount: waCharge,
+        detail: `10% of freight ($${freightCharge.toFixed(2)}) — shipment ${direction} WA regional area`,
+        section: "location"
+      });
+      totalFixed += waCharge;
+    } else {
+      flags.push({
+        code: "LR",
+        name: "WA Regional Surcharge (10%)",
+        fee: null,
+        detail: `Shipment ${direction} WA regional area. Enter your freight charge above to calculate the 10% surcharge.`,
+        type: "amber"
+      });
+    }
+  }
+
+  // ---------- SECURITY SURCHARGE ----------
+  if (svc.securityPct > 0) {
+    if (freightCharge > 0) {
+      const secCharge = freightCharge * (svc.securityPct / 100);
+      surcharges.push({
+        code: "SEC",
+        name: "Security Surcharge",
+        amount: secCharge,
+        detail: `${svc.securityPct}% of freight ($${freightCharge.toFixed(2)}) for ${svc.name}`,
+        section: "service"
+      });
+      totalFixed += secCharge;
+    } else {
+      flags.push({
+        code: "SEC",
+        name: `Security Surcharge (${svc.securityPct}%)`,
+        fee: null,
+        detail: `Applies to ${svc.name}. Enter your freight charge above to calculate.`,
+        type: "amber"
+      });
+    }
+  }
+
+  // ---------- FUEL SURCHARGE ----------
+  let fuelSurcharge = 0;
+  if (freightCharge > 0) {
+    fuelSurcharge = freightCharge * FUEL_SURCHARGE.rate;
+  }
+
+  // ---------- RENDER RESULTS ----------
+  renderResults(surcharges, flags, {
+    serviceName: svc.name,
+    deadWeight: totalDeadWeight,
+    cubicWeight: totalCubicWeight,
+    chargeableWeight,
+    totalFixed,
+    pickupPC,
+    deliveryPC,
+    freightCharge,
+    fuelSurcharge,
+    itemCount,
+  });
+}
+
+function renderResults(surcharges, flags, meta) {
+  const el = document.getElementById("results");
+  el.classList.remove("hidden");
+
+  const sections = {
+    handling: { title: "Handling & Size Surcharges", items: [] },
+    residential: { title: "Residential Surcharges", items: [] },
+    location: { title: "Location-Based Surcharges", items: [] },
+    service: { title: "Service Surcharges", items: [] },
+  };
+
+  surcharges.forEach(s => {
+    if (sections[s.section]) sections[s.section].items.push(s);
+  });
+
+  const hasFreight = meta.freightCharge > 0;
+  const grandTotal = meta.freightCharge + meta.fuelSurcharge + meta.totalFixed;
+
+  let html = `
+    <div class="results-card">
+      <div class="results-header">
+        <h2>Shipment Cost Estimate — ${meta.serviceName}</h2>
+        <div class="meta">${meta.pickupPC} → ${meta.deliveryPC}</div>
+      </div>
+      <div class="results-body">
+        <div class="weight-summary">
+          <div class="weight-item">Items: <strong>${meta.itemCount}</strong></div>
+          <div class="weight-item">Total Dead Weight: <strong>${meta.deadWeight.toFixed(1)} kg</strong></div>
+          <div class="weight-item">Total Cubic Weight: <strong>${meta.cubicWeight.toFixed(1)} kg</strong></div>
+          <div class="weight-item">Chargeable Weight: <strong>${meta.chargeableWeight.toFixed(1)} kg</strong></div>
+        </div>
+
+        <!-- LINE ITEM BREAKDOWN -->
+        <div class="results-section">
+          <h3>Cost Breakdown</h3>
+          <div class="line-items">
+            <div class="line-item freight">
+              <div class="line-item-label">
+                Freight Charge
+                <span class="li-sub">As quoted by myTNT2</span>
+              </div>
+              <div class="line-item-amount">${hasFreight ? '$' + meta.freightCharge.toFixed(2) : '<span class="muted">Not entered</span>'}</div>
+            </div>
+            <div class="line-item">
+              <div class="line-item-label">
+                Fuel Surcharge<span class="fuel-badge">${FUEL_SURCHARGE.label}</span>
+                <span class="li-sub">${FUEL_SURCHARGE.period}${hasFreight ? ' — ' + FUEL_SURCHARGE.label + ' of $' + meta.freightCharge.toFixed(2) : ''}</span>
+              </div>
+              <div class="line-item-amount">${hasFreight ? '$' + meta.fuelSurcharge.toFixed(2) : '<span class="muted">Enter freight charge</span>'}</div>
+            </div>`;
+
+  // Individual surcharge line items
+  surcharges.forEach(s => {
+    html += `
+            <div class="line-item">
+              <div class="line-item-label">
+                <span class="surcharge-code">${s.code}</span> ${s.name}
+                <span class="li-sub">${s.detail}</span>
+              </div>
+              <div class="line-item-amount">$${s.amount.toFixed(2)}</div>
+            </div>`;
+  });
+
+  if (surcharges.length === 0 && flags.length === 0) {
+    html += `
+            <div class="line-item">
+              <div class="line-item-label" style="color: var(--green-600); font-weight: 600;">
+                ✓ No additional surcharges
+                <span class="li-sub">Based on the details provided, no surcharges apply.</span>
+              </div>
+              <div class="line-item-amount" style="color: var(--green-600);">$0.00</div>
+            </div>`;
+  }
+
+  // Subtotal for surcharges only
+  if (surcharges.length > 0) {
+    html += `
+            <div class="line-item subtotal">
+              <div class="line-item-label">Surcharges Subtotal</div>
+              <div class="line-item-amount">$${meta.totalFixed.toFixed(2)}</div>
+            </div>`;
+  }
+
+  html += `
+          </div>
+        </div>`;
+
+  // Conditional / May Apply flags
+  if (flags.length > 0) {
+    html += `<div class="results-section"><h3>Conditional / May Apply</h3>`;
+    flags.forEach(f => {
+      html += `
+          <div class="surcharge-row">
+            <div class="surcharge-info">
+              <div><span class="surcharge-code">${f.code}</span><span class="surcharge-name">${f.name}</span></div>
+              <div class="surcharge-detail">${f.detail}</div>
+            </div>
+            <div class="surcharge-flag flag-${f.type}">${f.fee !== null ? '$' + f.fee.toFixed(2) + ' if applicable' : 'See details'}</div>
+          </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+
+  // Total bar
+  if (hasFreight) {
+    html += `
+      <div class="total-bar">
+        <div class="total-label">Total Estimated Shipping Cost<span>Freight + Fuel Surcharge + Surcharges (excl. conditional items &amp; GST)</span></div>
+        <div class="total-amount">$${grandTotal.toFixed(2)}</div>
+      </div>`;
+  } else {
+    html += `
+      <div class="total-bar">
+        <div class="total-label">Total Estimated Surcharges<span>Enter your freight charge for a complete cost estimate (excl. conditional items &amp; GST)</span></div>
+        <div class="total-amount">$${meta.totalFixed.toFixed(2)}</div>
+      </div>`;
+  }
+
+  html += `</div>`;
+
+  // Notes
+  html += `
+    <div class="note-box note-info" style="margin-top: 16px;">
+      <strong>Note:</strong> Fuel surcharge rate is ${FUEL_SURCHARGE.label} for ${FUEL_SURCHARGE.period}.
+      Next period: ${FUEL_SURCHARGE.nextLabel} for ${FUEL_SURCHARGE.nextPeriod}.
+      This estimate excludes account service fees ($12.50/invoice), redelivery fees ($24.50), 
+      book-in fees, and card payment surcharges (0.5–1.8%). Dangerous Goods surcharges are not calculated by this tool.
+      All amounts are GST exclusive. Confirm all charges with your carrier before shipping.
+    </div>`;
+
+  el.innerHTML = html;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+</script>
+</body>
+</html>
